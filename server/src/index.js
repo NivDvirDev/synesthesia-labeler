@@ -60,9 +60,23 @@ app.get('*', (req, res, next) => {
 app.use(errorHandler);
 
 async function startServer() {
+  // Run all migrations in order
+  const fs = require('fs');
+
+  // Migration 001: Create base tables
+  try {
+    const sql = fs.readFileSync(path.join(__dirname, 'migrate/001_create_tables.sql'), 'utf-8');
+    await pool.query(sql);
+    console.log('[DB] Migration 001_create_tables applied');
+  } catch (err) {
+    if (!err.message.includes('already exists')) {
+      console.error('[DB] Migration warning:', err.message);
+    }
+  }
+
   // Run migration for users table
   try {
-    const fs = require('fs');
+
     const migrationSql = fs.readFileSync(path.join(__dirname, 'migrate/003_add_users.sql'), 'utf-8');
     await pool.query(migrationSql);
     console.log('[DB] Migration 003_add_users applied');
@@ -74,7 +88,7 @@ async function startServer() {
 
   // Run migration for Google OAuth
   try {
-    const fs = require('fs');
+
     const migrationSql = fs.readFileSync(path.join(__dirname, 'migrate/004_add_google_oauth.sql'), 'utf-8');
     await pool.query(migrationSql);
     console.log('[DB] Migration 004_add_google_oauth applied');
