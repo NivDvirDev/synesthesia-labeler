@@ -124,7 +124,9 @@ const Label = {
         (SELECT COUNT(DISTINCT clip_id) FROM labels WHERE user_id IS NULL) AS labeled_auto,
         (SELECT COUNT(*) FROM clips c WHERE NOT EXISTS (
           SELECT 1 FROM labels l WHERE l.clip_id = c.id
-        )) AS unlabeled
+        )) AS unlabeled,
+        (SELECT COUNT(*) FROM users) AS total_users,
+        (SELECT COUNT(*) FROM users WHERE created_at >= NOW() - INTERVAL '7 days') AS recent_users_7d
     `);
 
     const { rows: [avgs] } = await pool.query(`
@@ -141,6 +143,8 @@ const Label = {
       labeled_human: parseInt(counts.labeled_human, 10),
       labeled_auto: parseInt(counts.labeled_auto, 10),
       unlabeled: parseInt(counts.unlabeled, 10),
+      total_users: parseInt(counts.total_users, 10),
+      recent_users_7d: parseInt(counts.recent_users_7d, 10),
       avg_scores: {
         sync_quality: avgs.sync_quality ? parseFloat(avgs.sync_quality) : null,
         visual_audio_alignment: avgs.visual_audio_alignment ? parseFloat(avgs.visual_audio_alignment) : null,
