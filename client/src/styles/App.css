@@ -86,7 +86,7 @@ body {
    ============================================= */
 .labeling-layout {
   display: flex;
-  gap: 0;
+  gap: 20px;
   min-height: calc(100vh - 200px);
 }
 
@@ -100,8 +100,8 @@ body {
 }
 
 .rating-panel {
-  flex: 0 0 40%;
-  max-width: 40%;
+  flex: 0 0 38%;
+  max-width: 38%;
   padding: 16px 16px 16px 0;
   display: flex;
   flex-direction: column;
@@ -478,6 +478,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background: rgba(13, 13, 20, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(150, 80, 255, 0.2);
+  border-radius: 12px;
 }
 
 .label-form-complete {
