@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import { ClipDetail } from '../types';
 import { getVideoUrl } from '../api';
 
@@ -15,6 +15,8 @@ interface VideoPlayerState {
 }
 
 class VideoPlayer extends Component<VideoPlayerProps, VideoPlayerState> {
+  private videoRef = createRef<HTMLVideoElement>();
+
   state: VideoPlayerState = {
     showMeta: false,
     videoUrl: `/videos/${encodeURIComponent(this.props.filename)}`,
@@ -51,20 +53,20 @@ class VideoPlayer extends Component<VideoPlayerProps, VideoPlayerState> {
 
     return (
       <div className="video-player">
-        <video key={videoUrl} controls autoPlay>
-          <source src={videoUrl} type="video/mp4" />
-          Your browser does not support the video element.
-        </video>
-        <div className="video-meta">
-          <button className="video-meta-toggle" onClick={this.toggleMeta}>
-            {showMeta ? 'Hide' : 'Show'} metadata
-          </button>
-          {showMeta && (
-            <div className="video-meta-content">
-              {JSON.stringify(metadata, null, 2)}
-            </div>
-          )}
+        <div className="video-container">
+          <video key={videoUrl} ref={this.videoRef} controls autoPlay loop>
+            <source src={videoUrl} type="video/mp4" />
+            Your browser does not support the video element.
+          </video>
         </div>
+        <button className="video-info-btn" onClick={this.toggleMeta} title="Clip metadata">
+          {showMeta ? '\u2715' : '\u24D8'}
+        </button>
+        {showMeta && (
+          <div className="video-meta-overlay">
+            <pre>{JSON.stringify(metadata, null, 2)}</pre>
+          </div>
+        )}
       </div>
     );
   }

@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { Dimension, DimensionKey, Label, LabelData, RatingValue } from '../types';
 
-const DIMENSIONS: Dimension[] = [
+const DOT_COLORS = ['#ff4444', '#ff8c3c', '#ffd43c', '#8cff3c', '#3cff6e'];
+
+const DIMENSIONS: (Dimension & { icon: string })[] = [
   {
     key: 'sync_quality',
     label: 'Sync Quality',
+    icon: '\u{1F3B5}',
     descriptions: {
       1: 'No sync at all',
       2: 'Occasional sync',
@@ -14,19 +17,9 @@ const DIMENSIONS: Dimension[] = [
     },
   },
   {
-    key: 'visual_audio_alignment',
-    label: 'Visual-Audio Alignment',
-    descriptions: {
-      1: 'Completely mismatched',
-      2: 'Poorly aligned',
-      3: 'Somewhat aligned',
-      4: 'Well aligned',
-      5: 'Perfect alignment',
-    },
-  },
-  {
     key: 'aesthetic_quality',
     label: 'Aesthetic Quality',
+    icon: '\u2728',
     descriptions: {
       1: 'Unappealing',
       2: 'Below average',
@@ -36,8 +29,21 @@ const DIMENSIONS: Dimension[] = [
     },
   },
   {
+    key: 'visual_audio_alignment',
+    label: 'Visual-Audio Alignment',
+    icon: '\u{1F517}',
+    descriptions: {
+      1: 'Completely mismatched',
+      2: 'Poorly aligned',
+      3: 'Somewhat aligned',
+      4: 'Well aligned',
+      5: 'Perfect alignment',
+    },
+  },
+  {
     key: 'motion_smoothness',
     label: 'Motion Smoothness',
+    icon: '\u{1F30A}',
     descriptions: {
       1: 'Very choppy',
       2: 'Somewhat choppy',
@@ -65,14 +71,18 @@ interface LabelFormState {
   aesthetic_quality: number | null;
   motion_smoothness: number | null;
   notes: string;
+  showNotes: boolean;
+  activeDimension: number;
+  justRated: string | null;
+  hoveredDot: { dim: string; val: number } | null;
 }
 
 class LabelForm extends Component<LabelFormProps, LabelFormState> {
-  private focusedDimension: number;
+  private animTimer: ReturnType<typeof setTimeout> | null = null;
+  private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(props: LabelFormProps) {
     super(props);
-    this.focusedDimension = 0;
     this.state = this.getInitialState(props);
   }
 
@@ -85,6 +95,10 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
         aesthetic_quality: label.aesthetic_quality ?? null,
         motion_smoothness: label.motion_smoothness ?? null,
         notes: label.notes || '',
+        showNotes: !!label.notes,
+        activeDimension: 0,
+        justRated: null,
+        hoveredDot: null,
       };
     }
     return {
@@ -93,13 +107,25 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
       aesthetic_quality: null,
       motion_smoothness: null,
       notes: '',
+      showNotes: false,
+      activeDimension: 0,
+      justRated: null,
+      hoveredDot: null,
     };
   }
 
-  componentDidUpdate(prevProps: LabelFormProps) {
+  componentDidUpdate(prevProps: LabelFormProps, prevState: LabelFormState) {
     if (prevProps.clipId !== this.props.clipId) {
+      if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
       this.setState(this.getInitialState(this.props));
-      this.focusedDimension = 0;
+      return;
+    }
+
+    const prevComplete = DIMENSIONS.every((d) => prevState[d.key] != null);
+    const nowComplete = this.isComplete();
+    if (!prevComplete && nowComplete && this.state.justRated && !this.props.saving) {
+      if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
+      this.autoSaveTimer = setTimeout(() => this.handleSave(), 800);
     }
   }
 
@@ -109,6 +135,8 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown);
+    if (this.animTimer) clearTimeout(this.animTimer);
+    if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
   }
 
   handleKeyDown = (e: KeyboardEvent) => {
@@ -119,11 +147,16 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
 
     if (key >= '1' && key <= '5') {
       e.preventDefault();
-      const dim = DIMENSIONS[this.focusedDimension];
-      this.setState({ [dim.key]: parseInt(key, 10) } as Pick<LabelFormState, DimensionKey>);
-      if (this.focusedDimension < DIMENSIONS.length - 1) {
-        this.focusedDimension++;
-      }
+      const dim = DIMENSIONS[this.state.activeDimension];
+      this.handleRatingChange(dim.key, parseInt(key, 10) as RatingValue);
+    } else if (key === 'Tab') {
+      e.preventDefault();
+      this.setState((s) => ({
+        activeDimension: (s.activeDimension + 1) % DIMENSIONS.length,
+      }));
+    } else if (key === 'Enter') {
+      e.preventDefault();
+      if (this.isComplete()) this.handleSave();
     } else if (key === 'n') {
       e.preventDefault();
       this.props.onNext();
@@ -137,9 +170,26 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
   };
 
   handleRatingChange = (dimKey: DimensionKey, value: RatingValue) => {
-    this.setState({ [dimKey]: value } as Pick<LabelFormState, DimensionKey>);
+    if (this.animTimer) clearTimeout(this.animTimer);
+
+    this.setState({ [dimKey]: value, justRated: dimKey } as unknown as Pick<LabelFormState, DimensionKey>);
+
+    this.animTimer = setTimeout(() => {
+      this.setState({ justRated: null });
+    }, 500);
+
     const idx = DIMENSIONS.findIndex((d) => d.key === dimKey);
-    this.focusedDimension = Math.min(idx + 1, DIMENSIONS.length - 1);
+    this.setState((prevState) => {
+      const updated = { ...prevState, [dimKey]: value };
+      for (let i = 1; i <= DIMENSIONS.length; i++) {
+        const nextIdx = (idx + i) % DIMENSIONS.length;
+        const nextDim = DIMENSIONS[nextIdx];
+        if (updated[nextDim.key] == null) {
+          return { activeDimension: nextIdx } as Pick<LabelFormState, 'activeDimension'>;
+        }
+      }
+      return { activeDimension: idx } as Pick<LabelFormState, 'activeDimension'>;
+    });
   };
 
   handleSave = () => {
@@ -152,91 +202,137 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
     return DIMENSIONS.every((d) => this.state[d.key] != null);
   }
 
+  ratedCount(): number {
+    return DIMENSIONS.filter((d) => this.state[d.key] != null).length;
+  }
+
   render() {
     const { autoLabel, onSkip, saving } = this.props;
+    const { showNotes, activeDimension, justRated, hoveredDot } = this.state;
+    const complete = this.isComplete();
+    const rated = this.ratedCount();
 
     return (
-      <div className="label-form">
-        <h3>Label This Clip</h3>
-
-        {autoLabel && (
-          <div className="auto-label-compare">
-            <h4>Auto Label ({autoLabel.labeler})</h4>
-            <div className="auto-label-scores">
-              {DIMENSIONS.map((dim) => (
-                <div key={dim.key} className="auto-label-score">
-                  <span className="dim-label">{dim.label}:</span>
-                  <span className="dim-value">{autoLabel[dim.key] ?? '\u2014'}</span>
-                </div>
-              ))}
-            </div>
-            {autoLabel.notes && (
-              <div style={{ marginTop: 8, fontSize: 12, color: '#aaa', fontStyle: 'italic' }}>
-                {autoLabel.notes}
-              </div>
+      <div className={'label-form glass-panel' + (complete ? ' label-form-complete' : '')}>
+        <div className="label-form-header">
+          <span className="label-form-title">Rate This Clip</span>
+          <span className="label-form-progress">
+            {complete ? (
+              <span className="label-form-check">{'\u2713'}</span>
+            ) : (
+              <span className="label-form-counter">{rated}/4</span>
             )}
-          </div>
-        )}
+          </span>
+        </div>
 
         <div className="rating-dimensions">
-          {DIMENSIONS.map((dim) => (
-            <div key={dim.key} className="rating-group">
-              <label>
-                {dim.label}
-                {this.state[dim.key] && (
-                  <span style={{ fontWeight: 400, color: '#888', marginLeft: 8 }}>
-                    — {dim.descriptions[this.state[dim.key] as RatingValue]}
+          {DIMENSIONS.map((dim, i) => {
+            const currentValue = this.state[dim.key] as number | null;
+            const isActive = activeDimension === i;
+            const wasJustRated = justRated === dim.key;
+            const autoValue = autoLabel ? (autoLabel[dim.key] as number | null) : null;
+
+            return (
+              <div
+                key={dim.key}
+                className={
+                  'rating-row' +
+                  (isActive ? ' active' : '') +
+                  (wasJustRated ? ' just-rated' : '') +
+                  (currentValue != null ? ' rated' : '')
+                }
+                onClick={() => this.setState({ activeDimension: i })}
+              >
+                <div className="rating-row-left">
+                  <span className="rating-row-icon">{dim.icon}</span>
+                  <span className="rating-row-label">{dim.label}</span>
+                </div>
+                <div className="rating-row-dots">
+                  {([1, 2, 3, 4, 5] as RatingValue[]).map((val) => {
+                    const isHovered = hoveredDot?.dim === dim.key && hoveredDot?.val === val;
+                    return (
+                      <div key={val} className="rating-dot-wrapper">
+                        <button
+                          className={
+                            'rating-dot' +
+                            (currentValue === val ? ' selected pulse' : '') +
+                            (currentValue != null && currentValue >= val ? ' filled' : '')
+                          }
+                          style={
+                            {
+                              '--dot-color': DOT_COLORS[val - 1],
+                            } as React.CSSProperties
+                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            this.handleRatingChange(dim.key, val);
+                          }}
+                          onMouseEnter={() => this.setState({ hoveredDot: { dim: dim.key, val } })}
+                          onMouseLeave={() => this.setState({ hoveredDot: null })}
+                        >
+                          <span className="rating-dot-inner" />
+                        </button>
+                        {isHovered && (
+                          <span className="rating-tooltip">
+                            {val} &mdash; {dim.descriptions[val]}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {autoValue != null && (
+                  <span className="rating-row-auto" title={`AI rated: ${autoValue}/5`}>
+                    {autoValue}
                   </span>
                 )}
-              </label>
-              <div className="rating-options">
-                {([1, 2, 3, 4, 5] as RatingValue[]).map((val) => (
-                  <label key={val} className="rating-option">
-                    <input
-                      type="radio"
-                      name={dim.key}
-                      value={val}
-                      checked={this.state[dim.key] === val}
-                      onChange={() => this.handleRatingChange(dim.key, val)}
-                    />
-                    <span>{val}</span>
-                  </label>
-                ))}
+                {currentValue != null && (
+                  <span className="rating-row-value">{currentValue}</span>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        <div className="notes-field">
-          <label>Notes</label>
-          <textarea
-            value={this.state.notes}
-            onChange={(e) => this.setState({ notes: e.target.value })}
-            placeholder="Optional notes about this clip..."
-          />
-        </div>
-
-        <div className="form-actions">
+        <div className="label-form-actions">
           <button
-            className="btn btn-save"
+            className={'btn btn-save' + (complete ? ' ready' : '')}
             onClick={this.handleSave}
-            disabled={!this.isComplete() || saving}
+            disabled={!complete || saving}
           >
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? 'Saving...' : complete ? 'Save \u2713' : 'Save'}
           </button>
           <button className="btn btn-skip" onClick={onSkip}>
             Skip
           </button>
           <button className="btn btn-nav" onClick={this.props.onPrev}>
-            Prev
+            {'\u2039'}
           </button>
           <button className="btn btn-nav" onClick={this.props.onNext}>
-            Next
+            {'\u203A'}
           </button>
         </div>
 
+        <div className="label-form-extras">
+          <button
+            className="notes-toggle"
+            onClick={() => this.setState({ showNotes: !showNotes })}
+          >
+            {showNotes ? '\u25BE Notes' : '\u25B8 Notes'}
+          </button>
+          {showNotes && (
+            <textarea
+              className="notes-input"
+              value={this.state.notes}
+              onChange={(e) => this.setState({ notes: e.target.value })}
+              placeholder="Optional notes..."
+              rows={2}
+            />
+          )}
+        </div>
+
         <div className="keyboard-hint">
-          Keys: 1-5 rate &middot; n/p next/prev &middot; Cmd+S save
+          1-5 rate &middot; Tab cycle &middot; Enter save &middot; n/p nav &middot; {'\u2318'}S save
         </div>
       </div>
     );

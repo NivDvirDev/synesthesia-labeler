@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React from 'react';
 import { ClipSummary, ClipMode } from '../types';
 
 interface ClipListProps {
@@ -16,30 +16,6 @@ const MODES: { key: ClipMode; label: string }[] = [
   { key: 'labeled', label: 'Review' },
 ];
 
-const getStatusClass = (clip: ClipSummary): string => {
-  if (clip.has_human_label) return 'labeled-human';
-  if (clip.has_auto_label) return 'labeled-auto';
-  return 'unlabeled';
-};
-
-const getStatusLabel = (clip: ClipSummary): string => {
-  if (clip.has_human_label && clip.rater_count > 0) return `${clip.rater_count} rater${clip.rater_count !== 1 ? 's' : ''}`;
-  if (clip.has_human_label) return 'Labeled';
-  if (clip.has_auto_label) return 'Auto';
-  return 'New';
-};
-
-/** Deterministic hue from clip id for the synesthesia color ring */
-const idToHue = (id: string): number => {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return Math.abs(hash) % 360;
-};
-
-const SCROLL_AMOUNT = 320; // px to scroll per arrow click
-
 const ClipList: React.FC<ClipListProps> = ({
   clips,
   selectedClipId,
@@ -48,98 +24,64 @@ const ClipList: React.FC<ClipListProps> = ({
   onModeChange,
   onRandom,
 }) => {
-  const trackRef = useRef<HTMLDivElement>(null);
+  const currentIdx = selectedClipId
+    ? clips.findIndex((c) => c.id === selectedClipId)
+    : -1;
+  const currentClip = currentIdx >= 0 ? clips[currentIdx] : null;
 
-  const scroll = useCallback((direction: 'left' | 'right') => {
-    if (!trackRef.current) return;
-    const amount = direction === 'left' ? -SCROLL_AMOUNT : SCROLL_AMOUNT;
-    trackRef.current.scrollBy({ left: amount, behavior: 'smooth' });
-  }, []);
+  const goPrev = () => {
+    if (currentIdx > 0) onSelect(clips[currentIdx - 1].id);
+  };
+
+  const goNext = () => {
+    if (currentIdx >= 0 && currentIdx < clips.length - 1) onSelect(clips[currentIdx + 1].id);
+  };
 
   return (
-    <section className="clip-strip">
-      {/* Top bar: mode buttons + random */}
-      <div className="clip-strip-controls">
-        <div className="mode-selector">
-          {MODES.map((m) => (
-            <button
-              key={m.key}
-              className={'mode-btn' + (mode === m.key ? ' active' : '')}
-              onClick={() => onModeChange(m.key)}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-        <button className="random-btn" onClick={onRandom}>
-          ↻ Random
+    <nav className="clip-nav">
+      <div className="clip-nav-modes">
+        {MODES.map((m) => (
+          <button
+            key={m.key}
+            className={'mode-btn' + (mode === m.key ? ' active' : '')}
+            onClick={() => onModeChange(m.key)}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="clip-nav-position">
+        <button
+          className="clip-nav-arrow"
+          onClick={goPrev}
+          disabled={currentIdx <= 0}
+        >
+          {'\u2039'}
+        </button>
+        <span className="clip-nav-counter">
+          {currentIdx >= 0 ? currentIdx + 1 : '\u2014'} / {clips.length}
+        </span>
+        <button
+          className="clip-nav-arrow"
+          onClick={goNext}
+          disabled={currentIdx < 0 || currentIdx >= clips.length - 1}
+        >
+          {'\u203A'}
         </button>
       </div>
 
-      {/* Horizontal carousel */}
-      <div className="clip-carousel">
-        <button
-          className="clip-arrow clip-arrow-left"
-          onClick={() => scroll('left')}
-          aria-label="Scroll left"
-        >
-          ‹
-        </button>
+      {currentClip && (
+        <span className="clip-nav-name" title={currentClip.filename}>
+          #{currentClip.id}
+          {currentClip.description ? ` \u2014 ${currentClip.description}` : ''}
+        </span>
+      )}
 
-        <div className="clip-track" ref={trackRef}>
-          {clips.length === 0 && (
-            <div className="clip-empty">No clips in this mode.</div>
-          )}
-          {clips.map((clip) => {
-            const hue = idToHue(clip.id);
-            const isSelected = clip.id === selectedClipId;
-            return (
-              <div
-                key={clip.id}
-                className={'clip-thumb' + (isSelected ? ' selected' : '')}
-                onClick={() => onSelect(clip.id)}
-                style={{
-                  '--clip-hue': `${hue}`,
-                } as React.CSSProperties}
-              >
-                {/* Dark thumbnail area with synesthesia ring */}
-                <div className="clip-thumb-visual">
-                  <svg viewBox="0 0 80 80" className="clip-thumb-svg">
-                    <circle cx="40" cy="40" r="30" fill="none"
-                      stroke={`hsl(${hue}, 90%, 55%)`} strokeWidth="2" opacity="0.7" />
-                    <circle cx="40" cy="40" r="23" fill="none"
-                      stroke={`hsl(${(hue + 50) % 360}, 85%, 60%)`} strokeWidth="1.5" opacity="0.5" />
-                    <circle cx="40" cy="40" r="16" fill="none"
-                      stroke={`hsl(${(hue + 100) % 360}, 80%, 65%)`} strokeWidth="1" opacity="0.35" />
-                    <circle cx="40" cy="40" r="9" fill="none"
-                      stroke={`hsl(${(hue + 150) % 360}, 75%, 70%)`} strokeWidth="0.8" opacity="0.25" />
-                  </svg>
-                  {/* Status badge overlay */}
-                  <span className={'clip-thumb-badge ' + getStatusClass(clip)}>
-                    {getStatusLabel(clip)}
-                  </span>
-                </div>
-                {/* Label below thumbnail */}
-                <div className="clip-thumb-label">
-                  <span className="clip-thumb-id">#{clip.id}</span>
-                  <span className="clip-thumb-name">
-                    {clip.description || clip.filename}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <button
-          className="clip-arrow clip-arrow-right"
-          onClick={() => scroll('right')}
-          aria-label="Scroll right"
-        >
-          ›
-        </button>
-      </div>
-    </section>
+      <button className="clip-nav-random" onClick={onRandom} title="Random clip">
+        {'\u21BB'}
+      </button>
+    </nav>
   );
 };
 

@@ -5,6 +5,7 @@ import VideoPlayer from './components/VideoPlayer';
 import LabelForm from './components/LabelForm';
 import StatsPanel from './components/StatsPanel';
 import RatingsTable from './components/RatingsTable';
+import ProgressBar from './components/ProgressBar';
 import LoginPage from './components/LoginPage';
 import { ClipSummary, ClipDetail, ClipMode, Label, LabelData, Stats, User, AppConfig } from './types';
 
@@ -18,6 +19,7 @@ interface AppState {
   user: User | null;
   authChecked: boolean;
   appConfig: AppConfig | null;
+  showRatings: boolean;
 }
 
 class App extends Component<{}, AppState> {
@@ -31,6 +33,7 @@ class App extends Component<{}, AppState> {
     user: null,
     authChecked: false,
     appConfig: null,
+    showRatings: false,
   };
 
   componentDidMount() {
@@ -111,7 +114,6 @@ class App extends Component<{}, AppState> {
         this.setState({ saving: false });
         this.loadClips();
         this.loadStats();
-        // Reload current clip to update ratings table
         this.loadClip(clipId);
         this.goToNext();
       })
@@ -149,7 +151,7 @@ class App extends Component<{}, AppState> {
   };
 
   render() {
-    const { clips, selectedClipId, selectedClip, mode, stats, saving, user, authChecked, appConfig } = this.state;
+    const { clips, selectedClipId, selectedClip, mode, stats, saving, user, authChecked, appConfig, showRatings } = this.state;
 
     if (!authChecked) {
       return (
@@ -173,36 +175,60 @@ class App extends Component<{}, AppState> {
 
     return (
       <div className="app">
+        {stats && (
+          <ProgressBar
+            total={stats.total_clips}
+            labeled={stats.labeled_human}
+            remaining={stats.unlabeled}
+          />
+        )}
+
         <header className="app-header">
-          <h1>Synesthesia Web Labeler</h1>
+          <h1>Synesthesia</h1>
+          <ClipList
+            clips={clips}
+            selectedClipId={selectedClipId}
+            onSelect={this.handleSelect}
+            mode={mode}
+            onModeChange={this.handleModeChange}
+            onRandom={this.handleRandom}
+          />
           {stats && <StatsPanel stats={stats} />}
           <div className="user-info">
             <span className="user-name">{user.username}</span>
             <button className="btn-logout" onClick={this.handleLogout}>Logout</button>
           </div>
         </header>
-        <ClipList
-          clips={clips}
-          selectedClipId={selectedClipId}
-          onSelect={this.handleSelect}
-          mode={mode}
-          onModeChange={this.handleModeChange}
-          onRandom={this.handleRandom}
-        />
+
         <main className="app-main">
-          <div className="app-content">
-            {selectedClip ? (
-              <React.Fragment>
+          {selectedClip ? (
+            <div className="labeling-layout">
+              <div className="workspace-video">
                 <VideoPlayer
                   clipId={selectedClip.id}
                   filename={selectedClip.filename}
                   metadata={selectedClip}
                   useHuggingFace={useHF}
                 />
-                <RatingsTable
-                  labels={selectedClip.labels || []}
-                  currentUsername={user.username}
-                />
+                <button
+                  className="ratings-toggle"
+                  onClick={() => this.setState({ showRatings: !showRatings })}
+                >
+                  {showRatings ? '\u25BE All Ratings' : '\u25B8 All Ratings'}
+                  {selectedClip.labels && selectedClip.labels.length > 0 && (
+                    <span className="ratings-toggle-count">
+                      {selectedClip.labels.filter((l) => l.user_id != null).length}
+                    </span>
+                  )}
+                </button>
+                {showRatings && (
+                  <RatingsTable
+                    labels={selectedClip.labels || []}
+                    currentUsername={user.username}
+                  />
+                )}
+              </div>
+              <div className="rating-panel">
                 <LabelForm
                   clipId={selectedClip.id}
                   existingLabel={myLabel}
@@ -213,17 +239,15 @@ class App extends Component<{}, AppState> {
                   onNext={this.goToNext}
                   saving={saving}
                 />
-              </React.Fragment>
-            ) : (
-              <div className="empty-state">
-                <p>Select a clip from the sidebar to begin labeling.</p>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p>Select a clip to begin labeling.</p>
+            </div>
+          )}
         </main>
-        <footer className="app-footer">
-          Synesthesia Eval &mdash; Web Labeler v2.0
-        </footer>
+        <footer className="app-footer">Synesthesia Eval</footer>
       </div>
     );
   }
