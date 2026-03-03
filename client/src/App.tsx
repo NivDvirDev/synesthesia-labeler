@@ -185,14 +185,6 @@ class App extends Component<{}, AppState> {
 
         <header className="app-header">
           <h1>Synesthesia</h1>
-          <ClipList
-            clips={clips}
-            selectedClipId={selectedClipId}
-            onSelect={this.handleSelect}
-            mode={mode}
-            onModeChange={this.handleModeChange}
-            onRandom={this.handleRandom}
-          />
           {stats && <StatsPanel stats={stats} />}
           <div className="user-info">
             <span className="user-name">{user.username}</span>
@@ -201,6 +193,15 @@ class App extends Component<{}, AppState> {
         </header>
 
         <main className="app-main">
+          <ClipList
+            clips={clips}
+            selectedClipId={selectedClipId}
+            onSelect={this.handleSelect}
+            mode={mode}
+            onModeChange={this.handleModeChange}
+            onRandom={this.handleRandom}
+          />
+
           {selectedClip ? (
             <div className="labeling-layout">
               <div className="workspace-video">

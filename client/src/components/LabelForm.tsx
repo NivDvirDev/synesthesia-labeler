@@ -3,11 +3,11 @@ import { Dimension, DimensionKey, Label, LabelData, RatingValue } from '../types
 
 const DOT_COLORS = ['#ff4444', '#ff8844', '#ffcc44', '#88cc44', '#44cc88'];
 
-const DIMENSIONS: (Dimension & { icon: string })[] = [
+const DIMENSIONS: (Dimension & { icon: React.ReactNode })[] = [
   {
     key: 'sync_quality',
     label: 'Sync',
-    icon: '\u{1F3B5}',
+    icon: <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" strokeWidth={2} fill="none"><circle cx={8} cy={10} r={5}/><circle cx={12} cy={10} r={5}/></svg>,
     descriptions: {
       1: 'No sync at all',
       2: 'Occasional sync',
@@ -19,7 +19,7 @@ const DIMENSIONS: (Dimension & { icon: string })[] = [
   {
     key: 'aesthetic_quality',
     label: 'Aesthetic',
-    icon: '\u2728',
+    icon: <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" strokeWidth={2} fill="none"><path d="M10 2L18 10L10 18L2 10Z"/></svg>,
     descriptions: {
       1: 'Unappealing',
       2: 'Below average',
@@ -31,7 +31,7 @@ const DIMENSIONS: (Dimension & { icon: string })[] = [
   {
     key: 'visual_audio_alignment',
     label: 'Alignment',
-    icon: '\u{1F517}',
+    icon: <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" strokeWidth={2} fill="none"><line x1={3} y1={7} x2={17} y2={7}/><line x1={3} y1={13} x2={17} y2={13}/><circle cx={7} cy={7} r={2} fill="currentColor"/><circle cx={13} cy={13} r={2} fill="currentColor"/></svg>,
     descriptions: {
       1: 'Completely mismatched',
       2: 'Poorly aligned',
@@ -43,7 +43,7 @@ const DIMENSIONS: (Dimension & { icon: string })[] = [
   {
     key: 'motion_smoothness',
     label: 'Motion',
-    icon: '\u{1F30A}',
+    icon: <svg width="20" height="20" viewBox="0 0 20 20" stroke="currentColor" strokeWidth={2} fill="none"><path d="M2 10C5 4 9 16 12 10S16 4 18 10"/><path d="M15 7L18 10L15 13"/></svg>,
     descriptions: {
       1: 'Very choppy',
       2: 'Somewhat choppy',
