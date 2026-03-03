@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { Dimension, DimensionKey, Label, LabelData, RatingValue } from '../types';
 
-const DOT_COLORS = ['#ff4444', '#ff8c3c', '#ffd43c', '#8cff3c', '#3cff6e'];
+const DOT_COLORS = ['#ff4444', '#ff8844', '#ffcc44', '#88cc44', '#44cc88'];
 
 const DIMENSIONS: (Dimension & { icon: string })[] = [
   {
     key: 'sync_quality',
-    label: 'Sync Quality',
+    label: 'Sync',
     icon: '\u{1F3B5}',
     descriptions: {
       1: 'No sync at all',
@@ -18,7 +18,7 @@ const DIMENSIONS: (Dimension & { icon: string })[] = [
   },
   {
     key: 'aesthetic_quality',
-    label: 'Aesthetic Quality',
+    label: 'Aesthetic',
     icon: '\u2728',
     descriptions: {
       1: 'Unappealing',
@@ -30,7 +30,7 @@ const DIMENSIONS: (Dimension & { icon: string })[] = [
   },
   {
     key: 'visual_audio_alignment',
-    label: 'Visual-Audio Alignment',
+    label: 'Alignment',
     icon: '\u{1F517}',
     descriptions: {
       1: 'Completely mismatched',
@@ -42,7 +42,7 @@ const DIMENSIONS: (Dimension & { icon: string })[] = [
   },
   {
     key: 'motion_smoothness',
-    label: 'Motion Smoothness',
+    label: 'Motion',
     icon: '\u{1F30A}',
     descriptions: {
       1: 'Very choppy',
@@ -123,7 +123,7 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
 
     const prevComplete = DIMENSIONS.every((d) => prevState[d.key] != null);
     const nowComplete = this.isComplete();
-    if (!prevComplete && nowComplete && this.state.justRated && !this.props.saving) {
+    if (!prevComplete && nowComplete && !this.props.existingLabel && !this.props.saving) {
       if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
       this.autoSaveTimer = setTimeout(() => this.handleSave(), 800);
     }
@@ -207,7 +207,7 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
   }
 
   render() {
-    const { autoLabel, onSkip, saving } = this.props;
+    const { onSkip, saving } = this.props;
     const { showNotes, activeDimension, justRated, hoveredDot } = this.state;
     const complete = this.isComplete();
     const rated = this.ratedCount();
@@ -230,39 +230,34 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
             const currentValue = this.state[dim.key] as number | null;
             const isActive = activeDimension === i;
             const wasJustRated = justRated === dim.key;
-            const autoValue = autoLabel ? (autoLabel[dim.key] as number | null) : null;
 
             return (
               <div
                 key={dim.key}
                 className={
-                  'rating-row' +
+                  'rating-dim' +
                   (isActive ? ' active' : '') +
-                  (wasJustRated ? ' just-rated' : '') +
-                  (currentValue != null ? ' rated' : '')
+                  (wasJustRated ? ' just-rated' : '')
                 }
                 onClick={() => this.setState({ activeDimension: i })}
               >
-                <div className="rating-row-left">
-                  <span className="rating-row-icon">{dim.icon}</span>
-                  <span className="rating-row-label">{dim.label}</span>
-                </div>
-                <div className="rating-row-dots">
+                <span className="rating-dim-icon">{dim.icon}</span>
+                <span className="rating-dim-label">{dim.label}</span>
+                <div className="rating-dots">
                   {([1, 2, 3, 4, 5] as RatingValue[]).map((val) => {
+                    const isSelected = currentValue === val;
                     const isHovered = hoveredDot?.dim === dim.key && hoveredDot?.val === val;
+
                     return (
                       <div key={val} className="rating-dot-wrapper">
                         <button
                           className={
                             'rating-dot' +
-                            (currentValue === val ? ' selected pulse' : '') +
-                            (currentValue != null && currentValue >= val ? ' filled' : '')
+                            (isSelected ? ' selected' : '') +
+                            (isHovered ? ' hovered' : '') +
+                            (isSelected && wasJustRated ? ' pulse' : '')
                           }
-                          style={
-                            {
-                              '--dot-color': DOT_COLORS[val - 1],
-                            } as React.CSSProperties
-                          }
+                          style={{ '--dot-color': DOT_COLORS[val - 1] } as React.CSSProperties}
                           onClick={(e) => {
                             e.stopPropagation();
                             this.handleRatingChange(dim.key, val);
@@ -270,7 +265,7 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
                           onMouseEnter={() => this.setState({ hoveredDot: { dim: dim.key, val } })}
                           onMouseLeave={() => this.setState({ hoveredDot: null })}
                         >
-                          <span className="rating-dot-inner" />
+                          {val}
                         </button>
                         {isHovered && (
                           <span className="rating-tooltip">
@@ -281,14 +276,6 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
                     );
                   })}
                 </div>
-                {autoValue != null && (
-                  <span className="rating-row-auto" title={`AI rated: ${autoValue}/5`}>
-                    {autoValue}
-                  </span>
-                )}
-                {currentValue != null && (
-                  <span className="rating-row-value">{currentValue}</span>
-                )}
               </div>
             );
           })}
@@ -299,17 +286,18 @@ class LabelForm extends Component<LabelFormProps, LabelFormState> {
             className={'btn btn-save' + (complete ? ' ready' : '')}
             onClick={this.handleSave}
             disabled={!complete || saving}
+            title="Save (Enter)"
           >
-            {saving ? 'Saving...' : complete ? 'Save \u2713' : 'Save'}
+            {saving ? '...' : '\uD83D\uDCBE'}
           </button>
-          <button className="btn btn-skip" onClick={onSkip}>
-            Skip
+          <button className="btn btn-nav" onClick={this.props.onPrev} title="Previous (p)">
+            {'\u25C0'}
           </button>
-          <button className="btn btn-nav" onClick={this.props.onPrev}>
-            {'\u2039'}
+          <button className="btn btn-nav" onClick={this.props.onNext} title="Next (n)">
+            {'\u25B6'}
           </button>
-          <button className="btn btn-nav" onClick={this.props.onNext}>
-            {'\u203A'}
+          <button className="btn btn-skip" onClick={onSkip} title="Skip">
+            {'\u23ED'}
           </button>
         </div>
 

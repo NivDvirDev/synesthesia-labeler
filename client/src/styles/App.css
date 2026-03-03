@@ -520,7 +520,7 @@ body {
 }
 
 /* =============================================
-   Rating dimensions — compact rows
+   Rating dimensions — emoji dot rows
    ============================================= */
 .rating-dimensions {
   display: flex;
@@ -528,10 +528,10 @@ body {
   gap: 4px;
 }
 
-.rating-row {
+.rating-dim {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   padding: 6px 8px;
   border-radius: 8px;
   border: 1px solid transparent;
@@ -539,16 +539,16 @@ body {
   cursor: pointer;
 }
 
-.rating-row:hover {
+.rating-dim:hover {
   background: rgba(150, 80, 255, 0.04);
 }
 
-.rating-row.active {
+.rating-dim.active {
   background: rgba(150, 80, 255, 0.08);
   border-color: rgba(150, 80, 255, 0.2);
 }
 
-.rating-row.just-rated {
+.rating-dim.just-rated {
   animation: rowFlash 0.4s ease-out;
 }
 
@@ -557,40 +557,31 @@ body {
   100% { background: transparent; }
 }
 
-.rating-row-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 140px;
+.rating-dim-icon {
+  font-size: 24px;
+  line-height: 1;
   flex-shrink: 0;
 }
 
-.rating-row-icon {
-  font-size: 16px;
-  line-height: 1;
-}
-
-.rating-row-label {
+.rating-dim-label {
+  width: 70px;
   font-size: 12px;
   font-weight: 600;
-  color: #bbb;
+  color: #999;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.rating-row.active .rating-row-label {
+.rating-dim.active .rating-dim-label {
   color: #e0e0e0;
 }
 
-.rating-row.rated .rating-row-label {
-  color: #ccc;
-}
-
 /* =============================================
-   Rating dots — clickable colored circles
+   Rating dots — colored circle buttons
    ============================================= */
-.rating-row-dots {
+.rating-dots {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -599,66 +590,44 @@ body {
 }
 
 .rating-dot {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(150, 80, 255, 0.3);
   background: transparent;
+  color: #888;
   cursor: pointer;
   padding: 0;
+  font-size: 13px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: all 0.2s;
 }
 
-.rating-dot:hover {
+.rating-dot:hover,
+.rating-dot.hovered {
   border-color: var(--dot-color);
   transform: scale(1.15);
   box-shadow: 0 0 8px color-mix(in srgb, var(--dot-color) 40%, transparent);
-}
-
-.rating-dot .rating-dot-inner {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: transparent;
-  transition: all 0.15s;
-}
-
-.rating-dot:hover .rating-dot-inner {
-  background: var(--dot-color);
-  opacity: 0.5;
-}
-
-.rating-dot.filled {
-  border-color: var(--dot-color);
-}
-
-.rating-dot.filled .rating-dot-inner {
-  background: var(--dot-color);
-  opacity: 0.6;
+  color: var(--dot-color);
 }
 
 .rating-dot.selected {
-  border-color: var(--dot-color);
-  background: color-mix(in srgb, var(--dot-color) 15%, transparent);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--dot-color) 35%, transparent);
-}
-
-.rating-dot.selected .rating-dot-inner {
-  width: 10px;
-  height: 10px;
   background: var(--dot-color);
-  opacity: 1;
+  border-color: var(--dot-color);
+  color: #fff;
+  box-shadow: 0 0 12px var(--dot-color);
 }
 
 .rating-dot.pulse {
-  animation: dotPulse 0.5s ease-out;
+  animation: dotPulse 0.4s ease;
 }
 
 @keyframes dotPulse {
-  0% { transform: scale(1.3); box-shadow: 0 0 16px var(--dot-color); }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
   100% { transform: scale(1); }
 }
 
@@ -667,42 +636,18 @@ body {
    ============================================= */
 .rating-tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(20, 20, 30, 0.95);
-  border: 1px solid rgba(150, 80, 255, 0.25);
-  border-radius: 6px;
+  background: #1a1a2e;
+  border-radius: 4px;
   padding: 4px 8px;
   font-size: 11px;
   color: #ddd;
   white-space: nowrap;
   pointer-events: none;
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-/* =============================================
-   Rating row extras (auto value, current value)
-   ============================================= */
-.rating-row-auto {
-  font-size: 10px;
-  color: #ffe23c;
-  background: rgba(255, 226, 60, 0.1);
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-weight: 600;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.rating-row-value {
-  font-size: 13px;
-  font-weight: 700;
-  color: #3cff6e;
-  min-width: 16px;
-  text-align: center;
-  flex-shrink: 0;
+  margin-bottom: 4px;
 }
 
 /* =============================================
@@ -1282,17 +1227,19 @@ body {
     height: 55px;
   }
 
-  .rating-row-left {
-    min-width: 110px;
+  .rating-dim-label {
+    width: 55px;
+    font-size: 11px;
   }
 
-  .rating-row-label {
-    font-size: 11px;
+  .rating-dim-icon {
+    font-size: 20px;
   }
 
   .rating-dot {
     width: 28px;
     height: 28px;
+    font-size: 12px;
   }
 
   .btn {
