@@ -1,4 +1,4 @@
-import { ClipSummary, ClipDetail, ClipMode, Label, LabelData, Stats, AuthResponse, User, AppConfig } from './types';
+import { ClipSummary, ClipDetail, ClipMode, Label, LabelData, Stats, AuthResponse, User, AppConfig, LeaderboardEntry, MyStats } from './types';
 
 const API = '/api';
 
@@ -97,3 +97,15 @@ export const getStats = (): Promise<Stats> =>
 
 export const exportLabels = (): Promise<unknown> =>
   fetch(`${API}/labels/export?format=json`).then((r) => r.json());
+
+// Leaderboard API
+export const getLeaderboard = (): Promise<LeaderboardEntry[]> =>
+  fetch(`${API}/stats/leaderboard`).then((r) => r.json());
+
+export const getMyStats = (): Promise<MyStats> =>
+  fetch(`${API}/stats/me`, {
+    headers: authHeaders(),
+  }).then(async (r) => {
+    if (!r.ok) throw new Error('Failed to fetch stats');
+    return r.json();
+  });

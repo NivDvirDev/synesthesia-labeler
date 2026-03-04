@@ -89,3 +89,17 @@ export interface AppConfig {
   useHuggingFace: boolean;
   googleClientId: string | null;
 }
+
+export interface LeaderboardEntry {
+  username: string;
+  total_labels: number;
+}
+
+export type BadgeKey = 'first_label' | 'five_streak' | 'ten_labels' | 'completionist';
+
+export interface MyStats {
+  total_labels: number;
+  clips_remaining: number;
+  current_streak: number;
+  badges: BadgeKey[];
+}

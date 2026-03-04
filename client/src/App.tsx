@@ -7,6 +7,7 @@ import StatsPanel from './components/StatsPanel';
 import RatingsTable from './components/RatingsTable';
 import ProgressBar from './components/ProgressBar';
 import LoginPage from './components/LoginPage';
+import Leaderboard from './components/Leaderboard';
 import { ClipSummary, ClipDetail, ClipMode, Label, LabelData, Stats, User, AppConfig } from './types';
 
 const App: React.FC = () => {
@@ -20,6 +21,7 @@ const App: React.FC = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
   const [showRatings, setShowRatings] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const loadClips = useCallback((m: ClipMode) => {
     getClips(m).then((c) => setClips(c));
@@ -202,65 +204,78 @@ const App: React.FC = () => {
         <h1>Synesthesia</h1>
         {stats && <StatsPanel stats={stats} />}
         <div className="user-info">
+          <button
+            className={`btn-trophy${showLeaderboard ? ' active' : ''}`}
+            onClick={() => setShowLeaderboard(!showLeaderboard)}
+            title="Leaderboard"
+          >
+            &#127942;
+          </button>
           <span className="user-name">{user.username}</span>
           <button className="btn-logout" onClick={handleLogout}>Logout</button>
         </div>
       </header>
 
       <main className="app-main">
-        <ClipList
-          clips={clips}
-          selectedClipId={selectedClipId}
-          onSelect={handleSelect}
-          mode={mode}
-          onModeChange={handleModeChange}
-          onRandom={handleRandom}
-        />
-
-        {selectedClip ? (
-          <div className="labeling-layout">
-            <div className="workspace-video">
-              <VideoPlayer
-                clipId={selectedClip.id}
-                filename={selectedClip.filename}
-                metadata={selectedClip}
-                useHuggingFace={useHF}
-              />
-              <button
-                className="ratings-toggle"
-                onClick={() => setShowRatings(!showRatings)}
-              >
-                {showRatings ? '\u25BE All Ratings' : '\u25B8 All Ratings'}
-                {selectedClip.labels && selectedClip.labels.length > 0 && (
-                  <span className="ratings-toggle-count">
-                    {selectedClip.labels.filter((l) => l.user_id != null).length}
-                  </span>
-                )}
-              </button>
-              {showRatings && (
-                <RatingsTable
-                  labels={selectedClip.labels || []}
-                  currentUsername={user.username}
-                />
-              )}
-            </div>
-            <div className="rating-panel">
-              <LabelForm
-                clipId={selectedClip.id}
-                existingLabel={myLabel}
-                autoLabel={autoLabel}
-                onSave={handleSave}
-                onSkip={handleSkip}
-                onPrev={goToPrev}
-                onNext={goToNext}
-                saving={saving}
-              />
-            </div>
-          </div>
+        {showLeaderboard ? (
+          <Leaderboard user={user} />
         ) : (
-          <div className="empty-state">
-            <p>Select a clip to begin labeling.</p>
-          </div>
+          <>
+            <ClipList
+              clips={clips}
+              selectedClipId={selectedClipId}
+              onSelect={handleSelect}
+              mode={mode}
+              onModeChange={handleModeChange}
+              onRandom={handleRandom}
+            />
+
+            {selectedClip ? (
+              <div className="labeling-layout">
+                <div className="workspace-video">
+                  <VideoPlayer
+                    clipId={selectedClip.id}
+                    filename={selectedClip.filename}
+                    metadata={selectedClip}
+                    useHuggingFace={useHF}
+                  />
+                  <button
+                    className="ratings-toggle"
+                    onClick={() => setShowRatings(!showRatings)}
+                  >
+                    {showRatings ? '\u25BE All Ratings' : '\u25B8 All Ratings'}
+                    {selectedClip.labels && selectedClip.labels.length > 0 && (
+                      <span className="ratings-toggle-count">
+                        {selectedClip.labels.filter((l) => l.user_id != null).length}
+                      </span>
+                    )}
+                  </button>
+                  {showRatings && (
+                    <RatingsTable
+                      labels={selectedClip.labels || []}
+                      currentUsername={user.username}
+                    />
+                  )}
+                </div>
+                <div className="rating-panel">
+                  <LabelForm
+                    clipId={selectedClip.id}
+                    existingLabel={myLabel}
+                    autoLabel={autoLabel}
+                    onSave={handleSave}
+                    onSkip={handleSkip}
+                    onPrev={goToPrev}
+                    onNext={goToNext}
+                    saving={saving}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="empty-state">
+                <p>Select a clip to begin labeling.</p>
+              </div>
+            )}
+          </>
         )}
       </main>
       <footer className="app-footer">Synesthesia Eval</footer>
