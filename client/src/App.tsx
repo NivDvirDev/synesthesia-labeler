@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getClips, getClip, getStats, saveLabel, getMe, getConfig } from './api';
 import ClipList from './components/ClipList';
 import VideoPlayer from './components/VideoPlayer';
@@ -9,249 +9,263 @@ import ProgressBar from './components/ProgressBar';
 import LoginPage from './components/LoginPage';
 import { ClipSummary, ClipDetail, ClipMode, Label, LabelData, Stats, User, AppConfig } from './types';
 
-interface AppState {
-  clips: ClipSummary[];
-  selectedClipId: string | null;
-  selectedClip: ClipDetail | null;
-  mode: ClipMode;
-  stats: Stats | null;
-  saving: boolean;
-  user: User | null;
-  authChecked: boolean;
-  appConfig: AppConfig | null;
-  showRatings: boolean;
-}
+const App: React.FC = () => {
+  const [clips, setClips] = useState<ClipSummary[]>([]);
+  const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
+  const [selectedClip, setSelectedClip] = useState<ClipDetail | null>(null);
+  const [mode, setMode] = useState<ClipMode>('unlabeled');
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
+  const [showRatings, setShowRatings] = useState(false);
 
-class App extends Component<{}, AppState> {
-  state: AppState = {
-    clips: [],
-    selectedClipId: null,
-    selectedClip: null,
-    mode: 'unlabeled',
-    stats: null,
-    saving: false,
-    user: null,
-    authChecked: false,
-    appConfig: null,
-    showRatings: false,
-  };
+  const loadClips = useCallback((m: ClipMode) => {
+    getClips(m).then((c) => setClips(c));
+  }, []);
 
-  componentDidMount() {
-    this.checkAuth();
-    this.loadConfig();
-  }
+  const loadStats = useCallback(() => {
+    getStats().then((s) => setStats(s));
+  }, []);
 
-  checkAuth = () => {
+  const loadClip = useCallback((id: string) => {
+    getClip(id).then((clip) => {
+      setSelectedClipId(id);
+      setSelectedClip(clip);
+    });
+  }, []);
+
+  // Auth check on mount
+  useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      this.setState({ authChecked: true });
+      setAuthChecked(true);
       return;
     }
     getMe()
-      .then((user) => {
-        this.setState({ user, authChecked: true }, () => {
-          this.loadClips();
-          this.loadStats();
-        });
+      .then((u) => {
+        setUser(u);
+        setAuthChecked(true);
       })
       .catch(() => {
         localStorage.removeItem('token');
-        this.setState({ authChecked: true });
+        setAuthChecked(true);
       });
-  };
+  }, []);
 
-  loadConfig = () => {
-    getConfig().then((appConfig) => this.setState({ appConfig })).catch(() => {});
-  };
+  // Load config on mount
+  useEffect(() => {
+    getConfig().then((c) => setAppConfig(c)).catch(() => {});
+  }, []);
 
-  handleLogin = (user: User, token: string) => {
+  // Load clips and stats when user becomes available or mode changes
+  useEffect(() => {
+    if (user) {
+      loadClips(mode);
+      loadStats();
+    }
+  }, [user, mode, loadClips, loadStats]);
+
+  const handleLogin = useCallback((u: User, token: string) => {
     localStorage.setItem('token', token);
-    this.setState({ user }, () => {
-      this.loadClips();
-      this.loadStats();
-    });
-  };
+    setUser(u);
+  }, []);
 
-  handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.removeItem('token');
-    this.setState({
-      user: null,
-      clips: [],
-      selectedClipId: null,
-      selectedClip: null,
-      stats: null,
-    });
-  };
+    setUser(null);
+    setClips([]);
+    setSelectedClipId(null);
+    setSelectedClip(null);
+    setStats(null);
+  }, []);
 
-  loadClips = () => {
-    getClips(this.state.mode).then((clips) => {
-      this.setState({ clips });
-    });
-  };
+  const handleModeChange = useCallback((m: ClipMode) => {
+    setMode(m);
+  }, []);
 
-  loadStats = () => {
-    getStats().then((stats) => this.setState({ stats }));
-  };
+  const handleSelect = useCallback((id: string) => {
+    loadClip(id);
+  }, [loadClip]);
 
-  loadClip = (id: string) => {
-    getClip(id).then((clip) => {
-      this.setState({ selectedClipId: id, selectedClip: clip });
-    });
-  };
-
-  handleModeChange = (mode: ClipMode) => {
-    this.setState({ mode }, this.loadClips);
-  };
-
-  handleSelect = (id: string) => {
-    this.loadClip(id);
-  };
-
-  handleSave = (clipId: string, labelData: LabelData) => {
-    this.setState({ saving: true });
+  const handleSave = useCallback((clipId: string, labelData: LabelData) => {
+    setSaving(true);
     saveLabel(clipId, labelData)
       .then(() => {
-        this.setState({ saving: false });
-        this.loadClips();
-        this.loadStats();
-        this.loadClip(clipId);
-        this.goToNext();
+        setSaving(false);
+        loadClips(mode);
+        loadStats();
+        loadClip(clipId);
+        // goToNext inline - need current clips/selectedClipId at call time
+        setClips((prevClips) => {
+          setSelectedClipId((prevId) => {
+            const idx = prevClips.findIndex((c) => c.id === prevId);
+            if (idx >= 0 && idx < prevClips.length - 1) {
+              const nextId = prevClips[idx + 1].id;
+              getClip(nextId).then((clip) => {
+                setSelectedClipId(nextId);
+                setSelectedClip(clip);
+              });
+            }
+            return prevId;
+          });
+          return prevClips;
+        });
       })
       .catch((err) => {
-        this.setState({ saving: false });
+        setSaving(false);
         alert(err.message || 'Save failed');
       });
-  };
+  }, [mode, loadClips, loadStats, loadClip]);
 
-  handleSkip = () => {
-    this.goToNext();
-  };
+  const handleSkip = useCallback(() => {
+    setClips((prevClips) => {
+      setSelectedClipId((prevId) => {
+        const idx = prevClips.findIndex((c) => c.id === prevId);
+        if (idx >= 0 && idx < prevClips.length - 1) {
+          const nextId = prevClips[idx + 1].id;
+          loadClip(nextId);
+        }
+        return prevId;
+      });
+      return prevClips;
+    });
+  }, [loadClip]);
 
-  goToNext = () => {
-    const { clips, selectedClipId } = this.state;
-    const idx = clips.findIndex((c) => c.id === selectedClipId);
-    if (idx >= 0 && idx < clips.length - 1) {
-      this.loadClip(clips[idx + 1].id);
-    }
-  };
+  const goToPrev = useCallback(() => {
+    setClips((prevClips) => {
+      setSelectedClipId((prevId) => {
+        const idx = prevClips.findIndex((c) => c.id === prevId);
+        if (idx > 0) {
+          loadClip(prevClips[idx - 1].id);
+        }
+        return prevId;
+      });
+      return prevClips;
+    });
+  }, [loadClip]);
 
-  goToPrev = () => {
-    const { clips, selectedClipId } = this.state;
-    const idx = clips.findIndex((c) => c.id === selectedClipId);
-    if (idx > 0) {
-      this.loadClip(clips[idx - 1].id);
-    }
-  };
+  const goToNext = useCallback(() => {
+    setClips((prevClips) => {
+      setSelectedClipId((prevId) => {
+        const idx = prevClips.findIndex((c) => c.id === prevId);
+        if (idx >= 0 && idx < prevClips.length - 1) {
+          loadClip(prevClips[idx + 1].id);
+        }
+        return prevId;
+      });
+      return prevClips;
+    });
+  }, [loadClip]);
 
-  handleRandom = () => {
-    const { clips } = this.state;
-    if (clips.length === 0) return;
-    const clip = clips[Math.floor(Math.random() * clips.length)];
-    this.loadClip(clip.id);
-  };
+  const handleRandom = useCallback(() => {
+    setClips((prevClips) => {
+      if (prevClips.length === 0) return prevClips;
+      const clip = prevClips[Math.floor(Math.random() * prevClips.length)];
+      loadClip(clip.id);
+      return prevClips;
+    });
+  }, [loadClip]);
 
-  render() {
-    const { clips, selectedClipId, selectedClip, mode, stats, saving, user, authChecked, appConfig, showRatings } = this.state;
-
-    if (!authChecked) {
-      return (
-        <div className="app">
-          <div className="empty-state"><p>Loading...</p></div>
-        </div>
-      );
-    }
-
-    if (!user) {
-      return <LoginPage onLogin={this.handleLogin} googleClientId={appConfig?.googleClientId || null} />;
-    }
-
-    const myLabel: Label | undefined = selectedClip
-      ? (selectedClip.labels || []).find((l) => l.username === user.username)
-      : undefined;
-    const autoLabel: Label | undefined = selectedClip
-      ? (selectedClip.labels || []).find((l) => l.user_id == null)
-      : undefined;
-    const useHF = appConfig?.useHuggingFace || false;
-
+  if (!authChecked) {
     return (
       <div className="app">
-        {stats && (
-          <ProgressBar
-            total={stats.total_clips}
-            labeled={stats.labeled_human}
-            remaining={stats.unlabeled}
-          />
-        )}
-
-        <header className="app-header">
-          <h1>Synesthesia</h1>
-          {stats && <StatsPanel stats={stats} />}
-          <div className="user-info">
-            <span className="user-name">{user.username}</span>
-            <button className="btn-logout" onClick={this.handleLogout}>Logout</button>
-          </div>
-        </header>
-
-        <main className="app-main">
-          <ClipList
-            clips={clips}
-            selectedClipId={selectedClipId}
-            onSelect={this.handleSelect}
-            mode={mode}
-            onModeChange={this.handleModeChange}
-            onRandom={this.handleRandom}
-          />
-
-          {selectedClip ? (
-            <div className="labeling-layout">
-              <div className="workspace-video">
-                <VideoPlayer
-                  clipId={selectedClip.id}
-                  filename={selectedClip.filename}
-                  metadata={selectedClip}
-                  useHuggingFace={useHF}
-                />
-                <button
-                  className="ratings-toggle"
-                  onClick={() => this.setState({ showRatings: !showRatings })}
-                >
-                  {showRatings ? '\u25BE All Ratings' : '\u25B8 All Ratings'}
-                  {selectedClip.labels && selectedClip.labels.length > 0 && (
-                    <span className="ratings-toggle-count">
-                      {selectedClip.labels.filter((l) => l.user_id != null).length}
-                    </span>
-                  )}
-                </button>
-                {showRatings && (
-                  <RatingsTable
-                    labels={selectedClip.labels || []}
-                    currentUsername={user.username}
-                  />
-                )}
-              </div>
-              <div className="rating-panel">
-                <LabelForm
-                  clipId={selectedClip.id}
-                  existingLabel={myLabel}
-                  autoLabel={autoLabel}
-                  onSave={this.handleSave}
-                  onSkip={this.handleSkip}
-                  onPrev={this.goToPrev}
-                  onNext={this.goToNext}
-                  saving={saving}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="empty-state">
-              <p>Select a clip to begin labeling.</p>
-            </div>
-          )}
-        </main>
-        <footer className="app-footer">Synesthesia Eval</footer>
+        <div className="empty-state"><p>Loading...</p></div>
       </div>
     );
   }
-}
+
+  if (!user) {
+    return <LoginPage onLogin={handleLogin} googleClientId={appConfig?.googleClientId || null} />;
+  }
+
+  const myLabel: Label | undefined = selectedClip
+    ? (selectedClip.labels || []).find((l) => l.username === user.username)
+    : undefined;
+  const autoLabel: Label | undefined = selectedClip
+    ? (selectedClip.labels || []).find((l) => l.user_id == null)
+    : undefined;
+  const useHF = appConfig?.useHuggingFace || false;
+
+  return (
+    <div className="app">
+      {stats && (
+        <ProgressBar
+          total={stats.total_clips}
+          labeled={stats.labeled_human}
+          remaining={stats.unlabeled}
+        />
+      )}
+
+      <header className="app-header">
+        <h1>Synesthesia</h1>
+        {stats && <StatsPanel stats={stats} />}
+        <div className="user-info">
+          <span className="user-name">{user.username}</span>
+          <button className="btn-logout" onClick={handleLogout}>Logout</button>
+        </div>
+      </header>
+
+      <main className="app-main">
+        <ClipList
+          clips={clips}
+          selectedClipId={selectedClipId}
+          onSelect={handleSelect}
+          mode={mode}
+          onModeChange={handleModeChange}
+          onRandom={handleRandom}
+        />
+
+        {selectedClip ? (
+          <div className="labeling-layout">
+            <div className="workspace-video">
+              <VideoPlayer
+                clipId={selectedClip.id}
+                filename={selectedClip.filename}
+                metadata={selectedClip}
+                useHuggingFace={useHF}
+              />
+              <button
+                className="ratings-toggle"
+                onClick={() => setShowRatings(!showRatings)}
+              >
+                {showRatings ? '\u25BE All Ratings' : '\u25B8 All Ratings'}
+                {selectedClip.labels && selectedClip.labels.length > 0 && (
+                  <span className="ratings-toggle-count">
+                    {selectedClip.labels.filter((l) => l.user_id != null).length}
+                  </span>
+                )}
+              </button>
+              {showRatings && (
+                <RatingsTable
+                  labels={selectedClip.labels || []}
+                  currentUsername={user.username}
+                />
+              )}
+            </div>
+            <div className="rating-panel">
+              <LabelForm
+                clipId={selectedClip.id}
+                existingLabel={myLabel}
+                autoLabel={autoLabel}
+                onSave={handleSave}
+                onSkip={handleSkip}
+                onPrev={goToPrev}
+                onNext={goToNext}
+                saving={saving}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>Select a clip to begin labeling.</p>
+          </div>
+        )}
+      </main>
+      <footer className="app-footer">Synesthesia Eval</footer>
+    </div>
+  );
+};
 
 export default App;

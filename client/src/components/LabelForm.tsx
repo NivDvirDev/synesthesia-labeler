@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Dimension, DimensionKey, Label, LabelData, RatingValue } from '../types';
 
 const DOT_COLORS = ['#ff4444', '#ff8844', '#ffcc44', '#88cc44', '#44cc88'];
@@ -65,266 +65,265 @@ interface LabelFormProps {
   saving: boolean;
 }
 
-interface LabelFormState {
-  sync_quality: number | null;
-  visual_audio_alignment: number | null;
-  aesthetic_quality: number | null;
-  motion_smoothness: number | null;
-  notes: string;
-  showNotes: boolean;
-  activeDimension: number;
-  justRated: string | null;
-  hoveredDot: { dim: string; val: number } | null;
-}
+type Ratings = Record<DimensionKey, number | null>;
 
-class LabelForm extends Component<LabelFormProps, LabelFormState> {
-  private animTimer: ReturnType<typeof setTimeout> | null = null;
-  private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
-
-  constructor(props: LabelFormProps) {
-    super(props);
-    this.state = this.getInitialState(props);
-  }
-
-  getInitialState(props: LabelFormProps): LabelFormState {
-    const label = props.existingLabel;
-    if (label) {
-      return {
-        sync_quality: label.sync_quality ?? null,
-        visual_audio_alignment: label.visual_audio_alignment ?? null,
-        aesthetic_quality: label.aesthetic_quality ?? null,
-        motion_smoothness: label.motion_smoothness ?? null,
-        notes: label.notes || '',
-        showNotes: !!label.notes,
-        activeDimension: 0,
-        justRated: null,
-        hoveredDot: null,
-      };
-    }
+function getInitialRatings(label?: Label): Ratings {
+  if (label) {
     return {
-      sync_quality: null,
-      visual_audio_alignment: null,
-      aesthetic_quality: null,
-      motion_smoothness: null,
-      notes: '',
-      showNotes: false,
-      activeDimension: 0,
-      justRated: null,
-      hoveredDot: null,
+      sync_quality: label.sync_quality ?? null,
+      visual_audio_alignment: label.visual_audio_alignment ?? null,
+      aesthetic_quality: label.aesthetic_quality ?? null,
+      motion_smoothness: label.motion_smoothness ?? null,
     };
   }
-
-  componentDidUpdate(prevProps: LabelFormProps, prevState: LabelFormState) {
-    if (prevProps.clipId !== this.props.clipId) {
-      if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
-      this.setState(this.getInitialState(this.props));
-      return;
-    }
-
-    const prevComplete = DIMENSIONS.every((d) => prevState[d.key] != null);
-    const nowComplete = this.isComplete();
-    if (!prevComplete && nowComplete && !this.props.existingLabel && !this.props.saving) {
-      if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
-      this.autoSaveTimer = setTimeout(() => this.handleSave(), 800);
-    }
-  }
-
-  componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-    if (this.animTimer) clearTimeout(this.animTimer);
-    if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
-  }
-
-  handleKeyDown = (e: KeyboardEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') return;
-
-    const key = e.key;
-
-    if (key >= '1' && key <= '5') {
-      e.preventDefault();
-      const dim = DIMENSIONS[this.state.activeDimension];
-      this.handleRatingChange(dim.key, parseInt(key, 10) as RatingValue);
-    } else if (key === 'Tab') {
-      e.preventDefault();
-      this.setState((s) => ({
-        activeDimension: (s.activeDimension + 1) % DIMENSIONS.length,
-      }));
-    } else if (key === 'Enter') {
-      e.preventDefault();
-      if (this.isComplete()) this.handleSave();
-    } else if (key === 'n') {
-      e.preventDefault();
-      this.props.onNext();
-    } else if (key === 'p') {
-      e.preventDefault();
-      this.props.onPrev();
-    } else if (key === 's' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      this.handleSave();
-    }
+  return {
+    sync_quality: null,
+    visual_audio_alignment: null,
+    aesthetic_quality: null,
+    motion_smoothness: null,
   };
+}
 
-  handleRatingChange = (dimKey: DimensionKey, value: RatingValue) => {
-    if (this.animTimer) clearTimeout(this.animTimer);
+function LabelForm({ clipId, existingLabel, autoLabel, onSave, onSkip, onPrev, onNext, saving }: LabelFormProps) {
+  const [ratings, setRatings] = useState<Ratings>(() => getInitialRatings(existingLabel));
+  const [notes, setNotes] = useState(() => existingLabel?.notes || '');
+  const [showNotes, setShowNotes] = useState(() => !!existingLabel?.notes);
+  const [activeDimension, setActiveDimension] = useState(0);
+  const [justRated, setJustRated] = useState<string | null>(null);
+  const [hoveredDot, setHoveredDot] = useState<{ dim: string; val: number } | null>(null);
 
-    this.setState({ [dimKey]: value, justRated: dimKey } as unknown as Pick<LabelFormState, DimensionKey>);
+  const animTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    this.animTimer = setTimeout(() => {
-      this.setState({ justRated: null });
+  const isComplete = DIMENSIONS.every((d) => ratings[d.key] != null);
+  const rated = DIMENSIONS.filter((d) => ratings[d.key] != null).length;
+
+  const handleSave = useCallback(() => {
+    onSave(clipId, { ...ratings, notes });
+  }, [clipId, onSave, ratings, notes]);
+
+  // Reset state when clipId changes
+  useEffect(() => {
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    setRatings(getInitialRatings(existingLabel));
+    setNotes(existingLabel?.notes || '');
+    setShowNotes(!!existingLabel?.notes);
+    setActiveDimension(0);
+    setJustRated(null);
+    setHoveredDot(null);
+  }, [clipId]); // Only reset on clipId change, existingLabel read at call time
+
+  // Auto-save when all dimensions are rated for the first time
+  const prevCompleteRef = useRef(false);
+  useEffect(() => {
+    const wasComplete = prevCompleteRef.current;
+    prevCompleteRef.current = isComplete;
+
+    if (!wasComplete && isComplete && !existingLabel && !saving) {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+      autoSaveTimer.current = setTimeout(() => handleSave(), 800);
+    }
+
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [isComplete, existingLabel, saving, handleSave]);
+
+  // Reset prevCompleteRef when clipId changes
+  useEffect(() => {
+    prevCompleteRef.current = false;
+  }, [clipId]);
+
+  const handleRatingChange = useCallback((dimKey: DimensionKey, value: RatingValue) => {
+    if (animTimer.current) clearTimeout(animTimer.current);
+
+    setRatings((prev) => ({ ...prev, [dimKey]: value }));
+    setJustRated(dimKey);
+
+    animTimer.current = setTimeout(() => {
+      setJustRated(null);
     }, 500);
 
     const idx = DIMENSIONS.findIndex((d) => d.key === dimKey);
-    this.setState((prevState) => {
-      const updated = { ...prevState, [dimKey]: value };
+    setRatings((prev) => {
+      const updated = { ...prev, [dimKey]: value };
       for (let i = 1; i <= DIMENSIONS.length; i++) {
         const nextIdx = (idx + i) % DIMENSIONS.length;
         const nextDim = DIMENSIONS[nextIdx];
         if (updated[nextDim.key] == null) {
-          return { activeDimension: nextIdx } as Pick<LabelFormState, 'activeDimension'>;
+          setActiveDimension(nextIdx);
+          return updated;
         }
       }
-      return { activeDimension: idx } as Pick<LabelFormState, 'activeDimension'>;
+      setActiveDimension(idx);
+      return updated;
     });
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') return;
+
+      const key = e.key;
+
+      if (key >= '1' && key <= '5') {
+        e.preventDefault();
+        setActiveDimension((current) => {
+          const dim = DIMENSIONS[current];
+          handleRatingChange(dim.key, parseInt(key, 10) as RatingValue);
+          return current;
+        });
+      } else if (key === 'Tab') {
+        e.preventDefault();
+        setActiveDimension((s) => (s + 1) % DIMENSIONS.length);
+      } else if (key === 'Enter') {
+        e.preventDefault();
+        // handleSave is called via ref to get latest state
+        handleSaveRef.current();
+      } else if (key === 'n') {
+        e.preventDefault();
+        onNext();
+      } else if (key === 'p') {
+        e.preventDefault();
+        onPrev();
+      } else if (key === 's' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        handleSaveRef.current();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onNext, onPrev, handleRatingChange]);
+
+  // Ref to always have latest handleSave + isComplete for keyboard handler
+  const handleSaveRef = useRef(() => {});
+  handleSaveRef.current = () => {
+    if (isComplete) handleSave();
   };
 
-  handleSave = () => {
-    const { clipId, onSave } = this.props;
-    const { sync_quality, visual_audio_alignment, aesthetic_quality, motion_smoothness, notes } = this.state;
-    onSave(clipId, { sync_quality, visual_audio_alignment, aesthetic_quality, motion_smoothness, notes });
-  };
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (animTimer.current) clearTimeout(animTimer.current);
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, []);
 
-  isComplete(): boolean {
-    return DIMENSIONS.every((d) => this.state[d.key] != null);
-  }
-
-  ratedCount(): number {
-    return DIMENSIONS.filter((d) => this.state[d.key] != null).length;
-  }
-
-  render() {
-    const { onSkip, saving } = this.props;
-    const { showNotes, activeDimension, justRated, hoveredDot } = this.state;
-    const complete = this.isComplete();
-    const rated = this.ratedCount();
-
-    return (
-      <div className={'label-form glass-panel' + (complete ? ' label-form-complete' : '')}>
-        <div className="label-form-header">
-          <span className="label-form-title">Rate This Clip</span>
-          <span className="label-form-progress">
-            {complete ? (
-              <span className="label-form-check">{'\u2713'}</span>
-            ) : (
-              <span className="label-form-counter">{rated}/4</span>
-            )}
-          </span>
-        </div>
-
-        <div className="rating-dimensions">
-          {DIMENSIONS.map((dim, i) => {
-            const currentValue = this.state[dim.key] as number | null;
-            const isActive = activeDimension === i;
-            const wasJustRated = justRated === dim.key;
-
-            return (
-              <div
-                key={dim.key}
-                className={
-                  'rating-dim' +
-                  (isActive ? ' active' : '') +
-                  (wasJustRated ? ' just-rated' : '')
-                }
-                onClick={() => this.setState({ activeDimension: i })}
-              >
-                <span className="rating-dim-icon">{dim.icon}</span>
-                <span className="rating-dim-label">{dim.label}</span>
-                <div className="rating-dots">
-                  {([1, 2, 3, 4, 5] as RatingValue[]).map((val) => {
-                    const isSelected = currentValue === val;
-                    const isHovered = hoveredDot?.dim === dim.key && hoveredDot?.val === val;
-
-                    return (
-                      <div key={val} className="rating-dot-wrapper">
-                        <button
-                          className={
-                            'rating-dot' +
-                            (isSelected ? ' selected' : '') +
-                            (isHovered ? ' hovered' : '') +
-                            (isSelected && wasJustRated ? ' pulse' : '')
-                          }
-                          style={{ '--dot-color': DOT_COLORS[val - 1] } as React.CSSProperties}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            this.handleRatingChange(dim.key, val);
-                          }}
-                          onMouseEnter={() => this.setState({ hoveredDot: { dim: dim.key, val } })}
-                          onMouseLeave={() => this.setState({ hoveredDot: null })}
-                        >
-                          {val}
-                        </button>
-                        {isHovered && (
-                          <span className="rating-tooltip">
-                            {val} &mdash; {dim.descriptions[val]}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="label-form-actions">
-          <button
-            className={'btn btn-save' + (complete ? ' ready' : '')}
-            onClick={this.handleSave}
-            disabled={!complete || saving}
-            title="Save (Enter)"
-          >
-            {saving ? '...' : '\uD83D\uDCBE'}
-          </button>
-          <button className="btn btn-nav" onClick={this.props.onPrev} title="Previous (p)">
-            {'\u25C0'}
-          </button>
-          <button className="btn btn-nav" onClick={this.props.onNext} title="Next (n)">
-            {'\u25B6'}
-          </button>
-          <button className="btn btn-skip" onClick={onSkip} title="Skip">
-            {'\u23ED'}
-          </button>
-        </div>
-
-        <div className="label-form-extras">
-          <button
-            className="notes-toggle"
-            onClick={() => this.setState({ showNotes: !showNotes })}
-          >
-            {showNotes ? '\u25BE Notes' : '\u25B8 Notes'}
-          </button>
-          {showNotes && (
-            <textarea
-              className="notes-input"
-              value={this.state.notes}
-              onChange={(e) => this.setState({ notes: e.target.value })}
-              placeholder="Optional notes..."
-              rows={2}
-            />
+  return (
+    <div className={'label-form glass-panel' + (isComplete ? ' label-form-complete' : '')}>
+      <div className="label-form-header">
+        <span className="label-form-title">Rate This Clip</span>
+        <span className="label-form-progress">
+          {isComplete ? (
+            <span className="label-form-check">{'\u2713'}</span>
+          ) : (
+            <span className="label-form-counter">{rated}/4</span>
           )}
-        </div>
-
-        <div className="keyboard-hint">
-          1-5 rate &middot; Tab cycle &middot; Enter save &middot; n/p nav &middot; {'\u2318'}S save
-        </div>
+        </span>
       </div>
-    );
-  }
+
+      <div className="rating-dimensions">
+        {DIMENSIONS.map((dim, i) => {
+          const currentValue = ratings[dim.key];
+          const isActive = activeDimension === i;
+          const wasJustRated = justRated === dim.key;
+
+          return (
+            <div
+              key={dim.key}
+              className={
+                'rating-dim' +
+                (isActive ? ' active' : '') +
+                (wasJustRated ? ' just-rated' : '')
+              }
+              onClick={() => setActiveDimension(i)}
+            >
+              <span className="rating-dim-icon">{dim.icon}</span>
+              <span className="rating-dim-label">{dim.label}</span>
+              <div className="rating-dots">
+                {([1, 2, 3, 4, 5] as RatingValue[]).map((val) => {
+                  const isSelected = currentValue === val;
+                  const isHovered = hoveredDot?.dim === dim.key && hoveredDot?.val === val;
+
+                  return (
+                    <div key={val} className="rating-dot-wrapper">
+                      <button
+                        className={
+                          'rating-dot' +
+                          (isSelected ? ' selected' : '') +
+                          (isHovered ? ' hovered' : '') +
+                          (isSelected && wasJustRated ? ' pulse' : '')
+                        }
+                        style={{ '--dot-color': DOT_COLORS[val - 1] } as React.CSSProperties}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRatingChange(dim.key, val);
+                        }}
+                        onMouseEnter={() => setHoveredDot({ dim: dim.key, val })}
+                        onMouseLeave={() => setHoveredDot(null)}
+                      >
+                        {val}
+                      </button>
+                      {isHovered && (
+                        <span className="rating-tooltip">
+                          {val} &mdash; {dim.descriptions[val]}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="label-form-actions">
+        <button
+          className={'btn btn-save' + (isComplete ? ' ready' : '')}
+          onClick={handleSave}
+          disabled={!isComplete || saving}
+          title="Save (Enter)"
+        >
+          {saving ? '...' : '\uD83D\uDCBE'}
+        </button>
+        <button className="btn btn-nav" onClick={onPrev} title="Previous (p)">
+          {'\u25C0'}
+        </button>
+        <button className="btn btn-nav" onClick={onNext} title="Next (n)">
+          {'\u25B6'}
+        </button>
+        <button className="btn btn-skip" onClick={onSkip} title="Skip">
+          {'\u23ED'}
+        </button>
+      </div>
+
+      <div className="label-form-extras">
+        <button
+          className="notes-toggle"
+          onClick={() => setShowNotes((s) => !s)}
+        >
+          {showNotes ? '\u25BE Notes' : '\u25B8 Notes'}
+        </button>
+        {showNotes && (
+          <textarea
+            className="notes-input"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Optional notes..."
+            rows={2}
+          />
+        )}
+      </div>
+
+      <div className="keyboard-hint">
+        1-5 rate &middot; Tab cycle &middot; Enter save &middot; n/p nav &middot; {'\u2318'}S save
+      </div>
+    </div>
+  );
 }
 
 export default LabelForm;
