@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const { pool, PORT, CLIPS_DIR, USE_HUGGINGFACE, GOOGLE_CLIENT_ID } = require('./config');
 const errorHandler = require('./middleware/errorHandler');
+const { globalLimiter, authLimiter, labelWriteLimiter } = require('./middleware/rateLimiter');
 const clipsRouter = require('./routes/clips');
 const labelsRouter = require('./routes/labels');
 const statsRouter = require('./routes/stats');
@@ -13,6 +14,11 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Rate limiting
+app.use('/api/', globalLimiter);
+app.use('/api/auth', authLimiter);
+app.use('/api/labels', labelWriteLimiter);
 
 // Serve video files with Range header support (local mode)
 if (!USE_HUGGINGFACE) {
@@ -98,6 +104,17 @@ async function startServer() {
     }
   }
 
+  // Migration 005: Two-axis rating framework
+  try {
+    const migrationSql = fs.readFileSync(path.join(__dirname, 'migrate/005_two_axis_ratings.sql'), 'utf-8');
+    await pool.query(migrationSql);
+    console.log('[DB] Migration 005_two_axis_ratings applied');
+  } catch (err) {
+    if (!err.message.includes('already exists') && !err.message.includes('does not exist')) {
+      console.error('[DB] Migration warning:', err.message);
+    }
+  }
+
   // Sync clips from HuggingFace if enabled
   if (USE_HUGGINGFACE) {
     try {
@@ -113,4 +130,8 @@ async function startServer() {
   });
 }
 
-startServer();
+module.exports = { app, startServer };
+
+if (require.main === module) {
+  startServer();
+}

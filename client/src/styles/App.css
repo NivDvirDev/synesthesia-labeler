@@ -525,6 +525,68 @@ body {
 }
 
 /* =============================================
+   Axis tabs
+   ============================================= */
+.axis-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.axis-tab {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #888;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.axis-tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #bbb;
+}
+
+.axis-tab.active {
+  background: rgba(163, 60, 255, 0.12);
+  border-color: rgba(163, 60, 255, 0.3);
+  color: #d9a0ff;
+}
+
+.axis-tab.complete {
+  border-color: rgba(60, 255, 110, 0.3);
+}
+
+.axis-tab.complete.active {
+  border-color: rgba(60, 255, 110, 0.4);
+}
+
+.axis-tab-count {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+/* Ratings table axis separators */
+.ratings-th-separator,
+.ratings-separator {
+  width: 2px;
+  padding: 0 1px;
+  background: rgba(163, 60, 255, 0.15);
+}
+
+.ratings-th-psychoacoustic {
+  color: #b088d0;
+}
+
+/* =============================================
    Rating dimensions — emoji dot rows
    ============================================= */
 .rating-dimensions {
