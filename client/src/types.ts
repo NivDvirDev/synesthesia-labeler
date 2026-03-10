@@ -128,3 +128,14 @@ export interface MyStats {
   current_streak: number;
   badges: BadgeKey[];
 }
+
+export interface ClipRanking {
+  id: string;
+  filename: string;
+  rater_count: number;
+  avg_sync: number | null;
+  avg_harmony: number | null;
+  avg_aesthetic: number | null;
+  avg_motion: number | null;
+  avg_overall: number | null;
+}
