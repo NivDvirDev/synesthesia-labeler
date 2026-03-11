@@ -289,7 +289,14 @@ const LabelerApp: React.FC = () => {
           </>
         )}
       </main>
-      <footer className="app-footer">Synesthesia Eval</footer>
+      <footer className="app-footer">
+        <div className="footer-logo">
+          <FlameIcon size={36} animate={false} />
+        </div>
+        <p className="footer-title">The Wellspring</p>
+        <p className="footer-tagline">Where sound becomes visible flame</p>
+        <p className="footer-copy">Synesthesia Eval</p>
+      </footer>
     </div>
   );
 };
