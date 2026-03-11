@@ -1280,6 +1280,11 @@ body {
     padding: 12px;
   }
 
+  .video-player video {
+    max-height: 50vh;
+    object-fit: contain;
+  }
+
   .rating-panel {
     flex: none;
     max-width: 100%;
@@ -1298,27 +1303,70 @@ body {
 
 @media (max-width: 768px) {
   .app-header {
-    flex-direction: column;
-    gap: 8px;
-    padding: 10px 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 8px 12px;
+    align-items: center;
   }
 
   .app-header h1 {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .app-logo {
-    height: 32px;
+    height: 28px;
   }
 
   .stats-panel {
-    flex-wrap: wrap;
-    gap: 10px;
-    width: 100%;
+    flex-wrap: nowrap;
+    gap: 6px;
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
   }
 
   .stats-cards {
-    gap: 12px;
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 2px 6px;
+  }
+
+  .stat-value {
+    font-size: 13px;
+  }
+
+  .stat-label {
+    font-size: 8px;
+  }
+
+  .user-info {
+    width: auto;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .user-info .btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .global-progress {
+    padding: 4px 12px;
+    gap: 8px;
+  }
+
+  .global-progress-text {
+    font-size: 10px;
+  }
+
+  .video-player video {
+    max-height: 40vh;
+    object-fit: contain;
   }
 
   .clip-strip-controls {
@@ -1366,11 +1414,6 @@ body {
 
   .keyboard-hint {
     display: none;
-  }
-
-  .user-info {
-    width: 100%;
-    justify-content: center;
   }
 
   .login-card {
