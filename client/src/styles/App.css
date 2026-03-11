@@ -924,7 +924,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-primary);
+  background: linear-gradient(to bottom, var(--color-bg-primary) 40%, #2D4263 100%);
   padding: 20px;
 }
 
