@@ -387,6 +387,8 @@ body {
 .video-player video {
   width: 100%;
   display: block;
+  max-height: 65vh;
+  object-fit: contain;
 }
 
 .video-info-btn {
