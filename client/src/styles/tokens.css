@@ -1,0 +1,128 @@
+/* =============================================
+   Design Tokens — Synesthesia Web Labeler
+   Flame / Wellspring Theme (from Figma)
+
+   Single source of truth for colors, fonts, and
+   gradients. Swap values here to re-theme the app.
+   ============================================= */
+
+:root {
+  /* ---- Background ---- */
+  --color-bg-primary: #1A1A2E;
+  --color-bg-secondary: #141428;
+  --color-bg-elevated: #2D4263;
+  --color-bg-elevated-alt: #1E1E3A;
+  --color-bg-deep: #12122A;
+  --color-bg-deepest: #0E0E24;
+
+  /* ---- Text ---- */
+  --color-text-primary: #F5F1E8;
+  --color-text-secondary: #C38E70;
+  --color-text-muted: #8B7355;
+  --color-text-dim: #6B5B4A;
+  --color-text-bright: #FFF3E0;
+  --color-text-mid: #A89080;
+  --color-text-light: #D4B896;
+  --color-text-lighter: #E0C8A8;
+  --color-text-lightest: #EDE0D0;
+  --color-text-near-white: #FAF5EC;
+
+  /* ---- Accent (Flame) ---- */
+  --color-accent: #FF6B35;
+  --color-accent-bright: #FFB627;
+  --color-accent-pink: #D84315;
+  --color-accent-soft: #FF8F60;
+  --color-accent-muted: #FFAB80;
+  --color-accent-deep: #E65100;
+  --color-accent-deep-light: #FF9A45;
+  --color-accent-psychoacoustic: #C87C4A;
+
+  /* ---- Accent alpha variants ---- */
+  --color-accent-04: rgba(255, 107, 53, 0.04);
+  --color-accent-06: rgba(255, 107, 53, 0.06);
+  --color-accent-08: rgba(255, 107, 53, 0.08);
+  --color-accent-10: rgba(255, 107, 53, 0.1);
+  --color-accent-12: rgba(255, 107, 53, 0.12);
+  --color-accent-15: rgba(255, 107, 53, 0.15);
+  --color-accent-20: rgba(255, 107, 53, 0.2);
+  --color-accent-25: rgba(255, 107, 53, 0.25);
+  --color-accent-30: rgba(255, 107, 53, 0.3);
+  --color-accent-40: rgba(255, 107, 53, 0.4);
+
+  /* ---- Semantic accent alpha (specific) ---- */
+  --color-accent-solid-12: rgba(255, 107, 53, 0.12);
+  --color-accent-solid-15: rgba(255, 107, 53, 0.15);
+  --color-accent-solid-25: rgba(255, 107, 53, 0.25);
+  --color-accent-solid-30: rgba(255, 107, 53, 0.3);
+  --color-accent-solid-35: rgba(255, 107, 53, 0.35);
+  --color-accent-solid-50: rgba(255, 107, 53, 0.5);
+
+  /* ---- Deep accent alpha ---- */
+  --color-accent-deep-15: rgba(230, 81, 0, 0.15);
+  --color-accent-deep-20: rgba(230, 81, 0, 0.2);
+  --color-accent-deep-30: rgba(230, 81, 0, 0.3);
+
+  /* ---- Status ---- */
+  --color-success: #FFB627;
+  --color-success-15: rgba(255, 182, 39, 0.15);
+  --color-success-20: rgba(255, 182, 39, 0.2);
+  --color-success-25: rgba(255, 182, 39, 0.25);
+  --color-success-06: rgba(255, 182, 39, 0.06);
+  --color-warning: #FFAB00;
+  --color-warning-04: rgba(255, 171, 0, 0.04);
+  --color-warning-12: rgba(255, 171, 0, 0.12);
+  --color-warning-20: rgba(255, 171, 0, 0.2);
+  --color-error: #D84315;
+  --color-error-text: #FF7043;
+  --color-error-08: rgba(216, 67, 21, 0.08);
+  --color-error-12: rgba(216, 67, 21, 0.12);
+  --color-error-15: rgba(216, 67, 21, 0.15);
+  --color-error-25: rgba(216, 67, 21, 0.25);
+  --color-error-50: rgba(216, 67, 21, 0.5);
+
+  /* ---- Bright accent (Gold) ---- */
+  --color-bright: #FFB627;
+  --color-bright-06: rgba(255, 182, 39, 0.06);
+  --color-bright-12: rgba(255, 182, 39, 0.12);
+  --color-bright-30: rgba(255, 182, 39, 0.3);
+
+  /* ---- Glow / Shadow ---- */
+  --color-glow: rgba(255, 107, 53, 0.08);
+  --color-glow-strong: rgba(255, 107, 53, 0.12);
+
+  /* ---- Glass ---- */
+  --color-glass-bg: rgba(26, 26, 46, 0.7);
+  --color-glass-bg-strong: rgba(26, 26, 46, 0.85);
+  --color-glass-overlay: rgba(14, 14, 36, 0.92);
+  --color-glass-highlight: rgba(255, 243, 224, 0.04);
+  --color-glass-border-light: rgba(255, 243, 224, 0.1);
+  --color-glass-bg-light: rgba(255, 243, 224, 0.03);
+  --color-glass-bg-hover: rgba(255, 243, 224, 0.06);
+  --color-glass-btn-bg: rgba(255, 243, 224, 0.08);
+  --color-glass-btn-hover: rgba(255, 243, 224, 0.14);
+  --color-bg-overlay: rgba(26, 26, 46, 0.85);
+  --color-bg-dark: rgba(0, 0, 0, 0.7);
+  --color-bg-darker: rgba(0, 0, 0, 0.6);
+  --color-bg-shadow: rgba(0, 0, 0, 0.4);
+  --color-bg-shadow-heavy: rgba(0, 0, 0, 0.5);
+  --color-bg-shadow-deep: rgba(0, 0, 0, 0.3);
+
+  /* ---- Gradients ---- */
+  --gradient-brand: linear-gradient(90deg, #D84315, #FF6B35, #FFB627, #FFF3E0);
+  --gradient-accent: linear-gradient(135deg, #FF6B35, #D84315);
+  --gradient-accent-bright: linear-gradient(135deg, #FF6B35, #FFB627);
+  --gradient-progress: linear-gradient(90deg, #D84315, #FF6B35, #FFB627);
+  --gradient-success: linear-gradient(135deg, #FFB627, #FFF3E0);
+  --gradient-success-solid: linear-gradient(135deg, #FFB627, #FF9800);
+  --gradient-elevated: linear-gradient(135deg, #1A1A2E 0%, #2D4263 100%);
+  --gradient-elevated-vertical: linear-gradient(180deg, #1A1A2E 0%, #1E1E3A 100%);
+
+  /* ---- Typography ---- */
+  --font-display: 'Orbitron', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* ---- Borders ---- */
+  --border-separator: 1px solid rgba(139, 115, 85, 0.3);
+  --border-row: 1px solid rgba(139, 115, 85, 0.15);
+}
