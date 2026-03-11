@@ -4,6 +4,7 @@ import { getClip, getConfig } from '../api';
 import { ClipDetail, AppConfig } from '../types';
 import VideoPlayer from './VideoPlayer';
 import RatingsTable from './RatingsTable';
+import { FlameIcon } from './FlameIcon';
 
 function clipDisplayName(filename: string): string {
   return filename.replace(/^\d+_/, '').replace(/\.[^.]+$/, '').replace(/_/g, ' ');
@@ -79,7 +80,7 @@ const ClipDetailPage: React.FC = () => {
     <div className="clip-detail-page">
       <header className="rankings-header">
         <div className="rankings-header-inner">
-          <h1 className="rankings-logo" onClick={() => navigate('/')}>Synesthesia</h1>
+          <FlameIcon size={44} className="rankings-logo" onClick={() => navigate('/')} />
           <p className="rankings-subtitle">{clipDisplayName(clip.filename)}</p>
         </div>
         <div className="clip-detail-nav">

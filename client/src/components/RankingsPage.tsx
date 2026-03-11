@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLeaderboard, getClipRankings, getStats } from '../api';
 import { LeaderboardEntry, ClipRanking, Stats } from '../types';
+import { FlameIcon } from './FlameIcon';
 
 const MEDALS = ['\u{1F3C6}', '\u{1F948}', '\u{1F949}'];
 
@@ -47,7 +48,7 @@ const RankingsPage: React.FC = () => {
     <div className="rankings-page">
       <header className="rankings-header">
         <div className="rankings-header-inner">
-          <h1 className="rankings-logo" onClick={() => navigate('/')}>Synesthesia</h1>
+          <FlameIcon size={44} className="rankings-logo" onClick={() => navigate('/')} />
           <p className="rankings-subtitle">Sound Visualization Rankings</p>
         </div>
         {!isLoggedIn && (

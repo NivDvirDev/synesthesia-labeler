@@ -74,6 +74,12 @@ body {
   white-space: nowrap;
 }
 
+.app-logo {
+  height: 40px;
+  width: 40px;
+  flex-shrink: 0;
+}
+
 /* =============================================
    Main layout
    ============================================= */
@@ -134,7 +140,7 @@ body {
   font-size: 11px;
   border: 1px solid var(--color-accent-25);
   background: transparent;
-  color: #a0a0a0;
+  color: var(--color-text-secondary);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s;
@@ -391,8 +397,8 @@ body {
   height: 28px;
   border-radius: 50%;
   border: 1px solid var(--color-accent-30);
-  background: rgba(10, 10, 15, 0.8);
-  color: #aaa;
+  background: var(--color-glass-btn-bg);
+  color: var(--color-text-secondary);
   font-size: 14px;
   cursor: pointer;
   display: flex;
@@ -405,7 +411,7 @@ body {
 .video-info-btn:hover {
   background: var(--color-accent-20);
   color: var(--color-text-bright);
-  border-color: rgba(150, 80, 255, 0.5);
+  border-color: var(--color-accent-30);
 }
 
 .video-meta-overlay {
@@ -439,7 +445,7 @@ body {
   background: var(--color-accent-08);
   border: 1px solid var(--color-accent-15);
   border-radius: 6px;
-  color: #aaa;
+  color: var(--color-text-secondary);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
@@ -564,11 +570,11 @@ body {
 }
 
 .axis-tab.complete {
-  border-color: rgba(60, 255, 110, 0.3);
+  border-color: rgba(46, 125, 50, 0.3);
 }
 
 .axis-tab.complete.active {
-  border-color: rgba(60, 255, 110, 0.4);
+  border-color: rgba(46, 125, 50, 0.4);
 }
 
 .axis-tab-count {
@@ -622,7 +628,7 @@ body {
 }
 
 @keyframes rowFlash {
-  0% { background: rgba(60, 255, 110, 0.15); }
+  0% { background: rgba(255, 182, 39, 0.15); }
   100% { background: transparent; }
 }
 
@@ -686,7 +692,7 @@ body {
 .rating-dot.selected {
   background: var(--dot-color);
   border-color: var(--dot-color);
-  color: #fff;
+  color: #FFFFFF;
   box-shadow: 0 0 12px var(--dot-color);
 }
 
@@ -762,7 +768,7 @@ body {
 }
 
 .btn-save.ready:hover:not(:disabled) {
-  box-shadow: 0 0 16px rgba(60, 255, 110, 0.35);
+  box-shadow: 0 0 16px rgba(255, 182, 39, 0.35);
 }
 
 .btn-skip {
@@ -810,7 +816,7 @@ body {
 }
 
 .notes-toggle:hover {
-  color: #aaa;
+  color: var(--color-text-secondary);
 }
 
 .notes-input {
@@ -932,6 +938,13 @@ body {
   box-shadow: 0 0 40px var(--color-glow);
 }
 
+.login-logo {
+  display: block;
+  margin: 0 auto 12px;
+  height: 80px;
+  width: 80px;
+}
+
 .login-title {
   font-family: var(--font-display);
   text-align: center;
@@ -990,7 +1003,7 @@ body {
   display: block;
   font-size: 12px;
   font-weight: 600;
-  color: #aaa;
+  color: var(--color-text-secondary);
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1039,7 +1052,7 @@ body {
 }
 
 .btn-login:hover:not(:disabled) {
-  box-shadow: 0 0 20px rgba(163, 60, 255, 0.4);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
   transform: translateY(-1px);
 }
 
@@ -1266,6 +1279,10 @@ body {
     font-size: 16px;
   }
 
+  .app-logo {
+    height: 32px;
+  }
+
   .stats-panel {
     flex-wrap: wrap;
     gap: 10px;
@@ -1380,7 +1397,7 @@ body {
   font-size: 11px;
   border: 1px solid var(--color-accent-25);
   background: transparent;
-  color: #a0a0a0;
+  color: var(--color-text-secondary);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s;
@@ -1670,13 +1687,19 @@ body {
   gap: 16px;
 }
 
-.rankings-logo {
+h1.rankings-logo {
   font-family: var(--font-display);
   font-size: 22px;
   background: var(--gradient-brand);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  cursor: pointer;
+}
+
+svg.rankings-logo {
+  height: 44px;
+  width: 44px;
   cursor: pointer;
 }
 
@@ -1698,7 +1721,7 @@ body {
   box-shadow: 0 0 14px var(--color-accent-solid-25);
 }
 .btn-join:hover {
-  box-shadow: 0 0 20px rgba(163, 60, 255, 0.4);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
   transform: translateY(-1px);
 }
 
@@ -1759,7 +1782,7 @@ body {
 }
 .rankings-tab.active {
   background: var(--color-accent-15);
-  border-color: rgba(150, 80, 255, 0.35);
+  border-color: var(--color-accent-30);
   border-bottom-color: transparent;
   color: var(--color-accent-muted);
 }

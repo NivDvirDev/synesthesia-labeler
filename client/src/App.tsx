@@ -11,6 +11,7 @@ import LoginPage from './components/LoginPage';
 import Leaderboard from './components/Leaderboard';
 import RankingsPage from './components/RankingsPage';
 import ClipDetailPage from './components/ClipDetailPage';
+import { FlameIcon } from './components/FlameIcon';
 import { ClipSummary, ClipDetail, ClipMode, Label, LabelData, Stats, User, AppConfig } from './types';
 
 const LabelerApp: React.FC = () => {
@@ -204,7 +205,7 @@ const LabelerApp: React.FC = () => {
       )}
 
       <header className="app-header">
-        <h1>Synesthesia</h1>
+        <FlameIcon size={40} className="app-logo" />
         {stats && <StatsPanel stats={stats} />}
         <div className="user-info">
           <button
