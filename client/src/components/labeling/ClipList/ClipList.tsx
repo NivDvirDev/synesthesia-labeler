@@ -103,18 +103,27 @@ const ClipList: React.FC<ClipListProps> = ({
                   '--clip-hue': `${hue}`,
                 } as React.CSSProperties}
               >
-                {/* Dark thumbnail area with synesthesia ring */}
+                {/* Dark thumbnail area with YouTube preview or synesthesia ring fallback */}
                 <div className="clip-thumb-visual">
-                  <svg viewBox="0 0 80 80" className="clip-thumb-svg">
-                    <circle cx="40" cy="40" r="30" fill="none"
-                      stroke={`hsl(${hue}, 90%, 55%)`} strokeWidth="2" opacity="0.7" />
-                    <circle cx="40" cy="40" r="23" fill="none"
-                      stroke={`hsl(${(hue + 50) % 360}, 85%, 60%)`} strokeWidth="1.5" opacity="0.5" />
-                    <circle cx="40" cy="40" r="16" fill="none"
-                      stroke={`hsl(${(hue + 100) % 360}, 80%, 65%)`} strokeWidth="1" opacity="0.35" />
-                    <circle cx="40" cy="40" r="9" fill="none"
-                      stroke={`hsl(${(hue + 150) % 360}, 75%, 70%)`} strokeWidth="0.8" opacity="0.25" />
-                  </svg>
+                  {clip.youtube_video_id ? (
+                    <img
+                      className="clip-thumb-img"
+                      src={`https://img.youtube.com/vi/${clip.youtube_video_id}/mqdefault.jpg`}
+                      alt={clip.description || clip.filename}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <svg viewBox="0 0 80 80" className="clip-thumb-svg">
+                      <circle cx="40" cy="40" r="30" fill="none"
+                        stroke={`hsl(${hue}, 90%, 55%)`} strokeWidth="2" opacity="0.7" />
+                      <circle cx="40" cy="40" r="23" fill="none"
+                        stroke={`hsl(${(hue + 50) % 360}, 85%, 60%)`} strokeWidth="1.5" opacity="0.5" />
+                      <circle cx="40" cy="40" r="16" fill="none"
+                        stroke={`hsl(${(hue + 100) % 360}, 80%, 65%)`} strokeWidth="1" opacity="0.35" />
+                      <circle cx="40" cy="40" r="9" fill="none"
+                        stroke={`hsl(${(hue + 150) % 360}, 75%, 70%)`} strokeWidth="0.8" opacity="0.25" />
+                    </svg>
+                  )}
                   {/* Status badge overlay */}
                   <span className={'clip-thumb-badge ' + getStatusClass(clip)}>
                     {getStatusLabel(clip)}

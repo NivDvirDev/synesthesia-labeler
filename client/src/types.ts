@@ -51,6 +51,7 @@ export interface ClipSummary {
   id: string;
   filename: string;
   description?: string;
+  youtube_video_id?: string;
   has_human_label: boolean;
   has_auto_label: boolean;
   rater_count: number;
