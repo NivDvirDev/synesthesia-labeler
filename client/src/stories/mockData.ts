@@ -146,11 +146,11 @@ export const mockUser: User = {
 // ── Mock Leaderboard ────────────────────────────────────────────────────────
 
 export const mockLeaderboard: LeaderboardEntry[] = [
-  { username: 'alice', total_labels: 42 },
-  { username: 'testuser', total_labels: 29 },
-  { username: 'bob', total_labels: 17 },
-  { username: 'charlie', total_labels: 8 },
-  { username: 'diana', total_labels: 3 },
+  { username: 'alice', total_labels: 42, level: 4, level_title: 'Psychoacoustic Analyst' },
+  { username: 'testuser', total_labels: 29, level: 3, level_title: 'Synesthete' },
+  { username: 'bob', total_labels: 17, level: 3, level_title: 'Synesthete' },
+  { username: 'charlie', total_labels: 8, level: 2, level_title: 'Rhythm Watcher' },
+  { username: 'diana', total_labels: 3, level: 1, level_title: 'Novice Listener' },
 ];
 
 // ── Mock My Stats ───────────────────────────────────────────────────────────
@@ -160,6 +160,10 @@ export const mockMyStats: MyStats = {
   clips_remaining: 54,
   current_streak: 5,
   badges: ['first_label', 'ten_labels', 'five_streak'],
+  level: 3,
+  level_title: 'Synesthete',
+  rank: 2,
+  labels_this_week: 4,
 };
 
 export const mockMyStatsWithAllBadges: MyStats = {
@@ -167,6 +171,10 @@ export const mockMyStatsWithAllBadges: MyStats = {
   clips_remaining: 0,
   current_streak: 12,
   badges: ['first_label', 'five_streak', 'ten_labels', 'completionist'],
+  level: 5,
+  level_title: 'Master Synesthetist 👑',
+  rank: 1,
+  labels_this_week: 15,
 };
 
 // ── Mock Clip Rankings ──────────────────────────────────────────────────────

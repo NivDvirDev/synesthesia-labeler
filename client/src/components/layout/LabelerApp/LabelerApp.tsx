@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getClips, getClip, getStats, saveLabel, getMe, getConfig } from '../../../api';
+import { getClips, getClip, getStats, saveLabel, getMe, getConfig, getMyStats } from '../../../api';
 import ClipList from '../../labeling/ClipList/ClipList';
 import VideoPlayer from '../../labeling/VideoPlayer/VideoPlayer';
 import LabelForm from '../../labeling/LabelForm/LabelForm';
@@ -8,9 +8,10 @@ import RatingsTable from '../../labeling/RatingsTable/RatingsTable';
 import ProgressBar from '../ProgressBar/ProgressBar';
 import LoginPage from '../../auth/LoginPage/LoginPage';
 import Leaderboard from '../../community/Leaderboard/Leaderboard';
+import ShareCard from '../../community/ShareCard/ShareCard';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
-import { ClipSummary, ClipDetail, ClipMode, Label, LabelData, Stats, User, AppConfig } from '../../../types';
+import { ClipSummary, ClipDetail, ClipMode, Label, LabelData, Stats, User, AppConfig, MyStats } from '../../../types';
 import './LabelerApp.css';
 
 const LabelerApp: React.FC = () => {
@@ -25,6 +26,7 @@ const LabelerApp: React.FC = () => {
   const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
   const [showRatings, setShowRatings] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [shareStats, setShareStats] = useState<MyStats | null>(null);
   const navigate = useNavigate();
 
   const loadClips = useCallback((m: ClipMode) => {
@@ -103,6 +105,12 @@ const LabelerApp: React.FC = () => {
         loadClips(mode);
         loadStats();
         loadClip(clipId);
+        // Show share card with updated stats (every 5 labels)
+        getMyStats().then((ms) => {
+          if (ms.total_labels % 5 === 0 || ms.total_labels === 1) {
+            setShareStats(ms);
+          }
+        }).catch(() => {});
         setClips((prevClips) => {
           setSelectedClipId((prevId) => {
             const idx = prevClips.findIndex((c) => c.id === prevId);
@@ -195,6 +203,15 @@ const LabelerApp: React.FC = () => {
 
   return (
     <div className="app">
+      {shareStats && user && (
+        <ShareCard
+          username={user.username}
+          totalLabels={shareStats.total_labels}
+          rank={shareStats.rank}
+          onClose={() => setShareStats(null)}
+        />
+      )}
+
       {stats && (
         <ProgressBar
           total={stats.total_clips}
