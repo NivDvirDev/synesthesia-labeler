@@ -50,6 +50,22 @@ app.get('/api/config', (_req, res) => {
   });
 });
 
+// Admin: force re-sync auto-labels from HuggingFace (protected by HF_TOKEN)
+app.post('/api/admin/sync', async (req, res) => {
+  const { HF_TOKEN } = require('./config');
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token || token !== HF_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const clips = await HuggingFace.syncClips();
+    const labels = await HuggingFace.fetchAutoLabels();
+    res.json({ clips, labels });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // API routes
 app.use('/api/auth', authRouter);
 app.use('/api/clips', clipsRouter);
