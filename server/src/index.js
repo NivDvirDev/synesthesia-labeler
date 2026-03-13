@@ -152,16 +152,27 @@ async function startServer() {
   }
 
   // Sync clips and auto-labels from HuggingFace if enabled
+  // Only sync what's missing — skip if already populated to avoid slow cold starts
   if (USE_HUGGINGFACE) {
     try {
-      await HuggingFace.syncClips();
+      const { rows: [{ clips, auto_labels }] } = await pool.query(
+        `SELECT
+           (SELECT COUNT(*)::int FROM clips) AS clips,
+           (SELECT COUNT(*)::int FROM labels WHERE user_id IS NULL) AS auto_labels`
+      );
+      if (clips === 0) {
+        console.log('[HuggingFace] No clips — running initial sync...');
+        await HuggingFace.syncClips();
+      }
+      if (auto_labels === 0) {
+        console.log('[HuggingFace] No auto-labels — fetching from HuggingFace...');
+        await HuggingFace.fetchAutoLabels();
+      }
+      if (clips > 0 && auto_labels > 0) {
+        console.log(`[HuggingFace] DB ready (${clips} clips, ${auto_labels} auto-labels) — skipping sync`);
+      }
     } catch (err) {
-      console.error('[HuggingFace] Clip sync failed:', err.message);
-    }
-    try {
-      await HuggingFace.fetchAutoLabels();
-    } catch (err) {
-      console.error('[HuggingFace] Auto-label sync failed:', err.message);
+      console.error('[HuggingFace] Sync check failed:', err.message);
     }
   }
 
