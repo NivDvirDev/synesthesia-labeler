@@ -151,12 +151,17 @@ async function startServer() {
     }
   }
 
-  // Sync clips from HuggingFace if enabled
+  // Sync clips and auto-labels from HuggingFace if enabled
   if (USE_HUGGINGFACE) {
     try {
       await HuggingFace.syncClips();
     } catch (err) {
-      console.error('[HuggingFace] Sync failed:', err.message);
+      console.error('[HuggingFace] Clip sync failed:', err.message);
+    }
+    try {
+      await HuggingFace.fetchAutoLabels();
+    } catch (err) {
+      console.error('[HuggingFace] Auto-label sync failed:', err.message);
     }
   }
 
