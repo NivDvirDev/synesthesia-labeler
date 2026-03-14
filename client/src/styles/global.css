@@ -9,7 +9,8 @@
 
 body {
   font-family: var(--font-body);
-  background: var(--color-bg-primary);
+  background: radial-gradient(ellipse at bottom right, #2D4263 0%, var(--color-bg-primary) 80%);
+  background-attachment: fixed;
   color: var(--color-text-primary);
   min-height: 100vh;
 }

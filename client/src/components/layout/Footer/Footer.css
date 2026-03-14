@@ -4,7 +4,7 @@
 .app-footer {
   text-align: center;
   padding: 48px 24px 32px;
-  background: linear-gradient(to bottom, var(--color-bg-primary), #2D4263);
+  background: transparent;
   color: #E0DDD5;
   border-top: none;
   position: relative;
