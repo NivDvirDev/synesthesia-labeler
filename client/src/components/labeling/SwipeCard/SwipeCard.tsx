@@ -14,7 +14,7 @@ interface Props {
   disabled: boolean;
 }
 
-function dragToScore(deltaX: number, cardWidth: number): number {
+export function dragToScore(deltaX: number, cardWidth: number): number {
   const ratio = deltaX / (cardWidth * 0.6);
   const clamped = Math.max(-1, Math.min(1, ratio));
   if (clamped <= -0.5) return 1;
