@@ -207,7 +207,7 @@ import LoginPage from '../components/auth/LoginPage/LoginPage';
 describe('LoginPage', () => {
   test('renders login form', () => {
     render(<LoginPage onLogin={jest.fn()} googleClientId={null} />);
-    expect(screen.getByText('Web Labeler')).toBeInTheDocument();
+    expect(screen.getByText('The Wellspring')).toBeInTheDocument();
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
   });
