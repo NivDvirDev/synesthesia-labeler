@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FlameIcon } from '../../brand/FlameIcon/FlameIcon';
 import StatsPanel from '../../community/StatsPanel/StatsPanel';
 import { Stats, User } from '../../../types';
@@ -21,11 +22,19 @@ const Header: React.FC<HeaderProps> = ({
   onLogout,
   onNavigateRankings,
 }) => {
+  const navigate = useNavigate();
   return (
     <header className="app-header">
       <FlameIcon size={40} className="app-logo" />
       {stats && <StatsPanel stats={stats} />}
       <div className="user-info">
+        <button
+          className="btn-quick-mode"
+          onClick={() => navigate('/swipe')}
+          title="Quick Rate Mode"
+        >
+          ⚡ Quick Mode
+        </button>
         <button
           className="btn-rankings-link"
           onClick={onNavigateRankings}

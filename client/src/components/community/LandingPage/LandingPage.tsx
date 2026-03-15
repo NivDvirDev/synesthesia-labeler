@@ -37,6 +37,9 @@ const LandingPage: React.FC = () => {
           <Link to="/app" className="btn btn-join">Start Rating</Link>
           <Link to="/rankings" className="btn btn-outline">Explore Rankings</Link>
         </div>
+        <div className="landing-hero-quick">
+          <Link to="/swipe" className="landing-quick-mode-link">⚡ Try Quick Mode →</Link>
+        </div>
       </section>
 
       {/* How it works */}

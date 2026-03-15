@@ -41,6 +41,23 @@
   flex-wrap: wrap;
 }
 
+.landing-hero-quick {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.landing-quick-mode-link {
+  color: rgba(255,149,0,0.7);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.landing-quick-mode-link:hover {
+  color: #ff9500;
+}
+
 .btn-outline {
   background: transparent;
   color: var(--accent-flame);

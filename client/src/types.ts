@@ -42,6 +42,8 @@ export interface Label {
   dynamics_accuracy?: number | null;
   timbre_accuracy?: number | null;
   melody_accuracy?: number | null;
+  // Swipe mode
+  overall_impression?: number | null;
   notes?: string;
   created_at?: string;
   updated_at?: string;
@@ -130,6 +132,8 @@ export interface LabelData {
   dynamics_accuracy?: number | null;
   timbre_accuracy?: number | null;
   melody_accuracy?: number | null;
+  // Swipe mode
+  overall_impression?: number | null;
   notes: string;
 }
 

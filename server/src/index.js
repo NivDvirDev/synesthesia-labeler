@@ -145,6 +145,17 @@ async function startServer() {
     }
   }
 
+  // Migration 007: Add overall_impression for swipe mode
+  try {
+    const migrationSql = fs.readFileSync(path.join(__dirname, 'migrate/007_swipe_mode.sql'), 'utf-8');
+    await pool.query(migrationSql);
+    console.log('[DB] Migration 007_swipe_mode applied');
+  } catch (err) {
+    if (!err.message.includes('already exists')) {
+      console.error('[DB] Migration warning:', err.message);
+    }
+  }
+
   // Populate youtube_video_id from local metadata.json (local mode)
   if (!USE_HUGGINGFACE) {
     try {

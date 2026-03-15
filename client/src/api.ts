@@ -85,6 +85,25 @@ export const saveLabel = (clipId: string, data: LabelData): Promise<unknown> =>
     return json;
   });
 
+export const saveSwipeLabel = async (clipId: string, score: number, token: string | null): Promise<unknown> => {
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const r = await fetch(`${API}/labels/${clipId}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ overall_impression: score, notes: '' }),
+    });
+    const json = await r.json();
+    if (!r.ok) throw new Error(json.error || 'Save failed');
+    return json;
+  } catch (err) {
+    // Silently swallow 401s for guest mode — callers handle auth state
+    if (err instanceof Error && err.message.includes('401')) return null;
+    throw err;
+  }
+};
+
 export const deleteLabel = (clipId: string, labeler: string): Promise<unknown> =>
   fetch(`${API}/labels/${clipId}/${encodeURIComponent(labeler)}`, {
     method: 'DELETE',

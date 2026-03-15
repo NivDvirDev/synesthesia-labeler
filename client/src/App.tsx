@@ -5,6 +5,7 @@ import RankingsPage from './components/community/RankingsPage/RankingsPage';
 import ClipDetailPage from './components/community/ClipDetailPage/ClipDetailPage';
 import UserProfilePage from './components/community/UserProfilePage/UserProfilePage';
 import LandingPage from './components/community/LandingPage/LandingPage';
+import SwipeMode from './components/labeling/SwipeMode/SwipeMode';
 
 const App: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ const App: React.FC = () => {
       <Route path="/rankings" element={<RankingsPage />} />
       <Route path="/clip/:id" element={<ClipDetailPage />} />
       <Route path="/user/:username" element={<UserProfilePage />} />
+      <Route path="/swipe" element={<SwipeMode />} />
       <Route path="*" element={<LabelerApp />} />
     </Routes>
   );
