@@ -152,3 +152,38 @@ export const getUserProfile = (username: string): Promise<UserProfile> =>
     if (!r.ok) throw new Error('User not found');
     return r.json();
   });
+
+// Creator Attribution API
+export const claimClip = async (clipId: string, youtubeUrl: string, token: string): Promise<unknown> => {
+  const r = await fetch(`${API}/clips/${clipId}/claim`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ youtube_url: youtubeUrl }),
+  });
+  const json = await r.json();
+  if (!r.ok) throw new Error(json.error || 'Claim failed');
+  return json;
+};
+
+export const unclaimClip = async (clipId: string, token: string): Promise<void> => {
+  const r = await fetch(`${API}/clips/${clipId}/claim`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!r.ok) { const json = await r.json(); throw new Error(json.error || 'Unclaim failed'); }
+};
+
+export const updateCreatorDisplay = async (
+  clipId: string,
+  data: { display_credit?: string; display_link?: string; credit_visible?: boolean },
+  token: string
+): Promise<unknown> => {
+  const r = await fetch(`${API}/clips/${clipId}/creator`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  const json = await r.json();
+  if (!r.ok) throw new Error(json.error || 'Update failed');
+  return json;
+};

@@ -58,6 +58,19 @@ export interface ClipSummary {
   has_auto_label: boolean;
   rater_count: number;
   is_hot?: boolean;
+  creator_name?: string | null;
+  creator_url?: string | null;
+  claimed?: boolean;
+  claimed_by_username?: string | null;
+  display_credit?: string | null;
+  display_link?: string | null;
+  credit_visible?: boolean;
+}
+
+export interface ClaimedClip {
+  id: string;
+  filename: string;
+  display_credit: string | null;
 }
 
 export interface TastePersonality {
@@ -95,6 +108,7 @@ export interface UserProfile {
   badges: BadgeKey[];
   perceptual: TasteProfile['perceptual'];
   personality: TastePersonality | null;
+  claimed_clips?: ClaimedClip[];
 }
 
 export interface ClipDetail {
@@ -102,6 +116,13 @@ export interface ClipDetail {
   filename: string;
   description?: string;
   labels?: Label[];
+  creator_name?: string | null;
+  creator_url?: string | null;
+  claimed?: boolean;
+  claimed_by_username?: string | null;
+  display_credit?: string | null;
+  display_link?: string | null;
+  credit_visible?: boolean;
   [key: string]: unknown;
 }
 
