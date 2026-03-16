@@ -33,7 +33,7 @@ function mockUserFound({
 } = {}) {
   // 1. User lookup
   pool.query.mockResolvedValueOnce({ rows: [{ id, username, created_at }] });
-  // 2-5. Promise.all([labelResult, clipResult, rankResult, profileResult])
+  // 2-6. Promise.all([labelResult, clipResult, rankResult, profileResult, claimedResult])
   pool.query
     .mockResolvedValueOnce({ rows: [{ total: total_labels }] })
     .mockResolvedValueOnce({ rows: [{ total: total_clips }] })
@@ -46,7 +46,8 @@ function mockUserFound({
         avg_motion,
         label_count,
       }],
-    });
+    })
+    .mockResolvedValueOnce({ rows: [] }); // claimed_clips (empty by default)
 }
 
 describe('GET /api/users/:username', () => {
