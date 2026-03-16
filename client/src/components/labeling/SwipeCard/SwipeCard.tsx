@@ -95,7 +95,7 @@ const SwipeCard: React.FC<Props> = ({ clip, onCommit, disabled }) => {
     isDragging.current = false;
     const deltaX = currentDeltaX.current;
     const cardWidth = cardRef.current?.offsetWidth || 380;
-    const threshold = cardWidth * 0.3;
+    const threshold = cardWidth * 0.08;
 
     if (Math.abs(deltaX) >= threshold) {
       const score = dragToScore(deltaX, cardWidth);
