@@ -3,9 +3,9 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: #0d0d1a;
+  background: var(--color-bg-primary);
   overflow: hidden;
-  font-family: inherit;
+  font-family: var(--font-body);
 }
 
 /* Loading / done states */
@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  color: #fff;
+  color: var(--color-text-primary);
   text-align: center;
   padding: 32px;
 }
@@ -32,41 +32,44 @@
 .swipe-done-icon { font-size: 3rem; }
 
 .swipe-mode--done h2 {
-  font-size: 1.8rem;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .swipe-mode--done p {
-  color: rgba(255,255,255,0.6);
+  color: var(--color-text-secondary);
   font-size: 1rem;
   margin: 0;
 }
 
 .swipe-done-cta {
-  padding: 14px 32px;
-  background: linear-gradient(135deg, #ff6b35, #ff9500);
+  padding: 12px 28px;
+  background: var(--gradient-accent);
   color: #fff;
   font-size: 1rem;
   font-weight: 700;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   margin-top: 8px;
+  font-family: var(--font-body);
 }
 
 .swipe-done-secondary {
   background: none;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.5);
+  border: 1px solid var(--color-accent-20);
+  color: var(--color-text-secondary);
   padding: 10px 24px;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
+  font-family: var(--font-body);
 }
 
-/* Header */
+/* ── Header ─────────────────────────────── */
 .swipe-header {
   height: 56px;
   flex-shrink: 0;
@@ -74,8 +77,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  background: rgba(13,13,26,0.95);
+  background: var(--gradient-elevated);
+  border-bottom: 1px solid var(--color-accent-20);
+  box-shadow: 0 1px 12px var(--color-glow);
 }
 
 .swipe-header-brand {
@@ -84,49 +88,66 @@
   gap: 8px;
 }
 
-.swipe-header-flame { font-size: 1.3rem; }
+.swipe-header-flame { font-size: 1.2rem; }
 
 .swipe-header-title {
+  font-family: var(--font-display);
   font-weight: 700;
-  color: #fff;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .swipe-header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .swipe-header-user {
-  color: rgba(255,255,255,0.5);
-  font-size: 0.85rem;
+  color: var(--color-accent-bright);
+  font-size: 0.82rem;
+  font-weight: 600;
 }
 
 .swipe-header-signin {
-  background: none;
-  border: 1px solid rgba(255,165,50,0.5);
-  color: #ffa532;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  padding: 4px 12px;
+  font-size: 11px;
+  background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,149,0,0.15));
+  color: #ff9500;
+  border: 1px solid rgba(255,149,0,0.35);
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font-body);
+}
+
+.swipe-header-signin:hover {
+  background: linear-gradient(135deg, rgba(255,107,53,0.25), rgba(255,149,0,0.25));
+  border-color: rgba(255,149,0,0.6);
 }
 
 .swipe-header-detail {
-  background: none;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.5);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  padding: 4px 12px;
+  font-size: 11px;
+  background: var(--color-accent-solid-12);
+  color: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-solid-25);
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
   white-space: nowrap;
+  font-family: var(--font-body);
 }
 
-.swipe-header-detail:hover { color: rgba(255,255,255,0.8); }
+.swipe-header-detail:hover {
+  background: var(--color-accent-solid-25);
+  border-color: var(--color-accent-solid-50);
+}
 
-/* Arena */
+/* ── Arena (stays dark — video is the focus) */
 .swipe-arena {
   flex: 1;
   display: flex;
@@ -136,37 +157,42 @@
   overflow: hidden;
   padding: 16px;
   gap: 12px;
+  background: #111318;
 }
 
 .swipe-hint {
   font-size: 1.8rem;
-  opacity: 0.25;
+  opacity: 0.3;
   flex-shrink: 0;
   user-select: none;
 }
 
-/* Footer */
+/* ── Footer ─────────────────────────────── */
 .swipe-footer {
-  height: 52px;
+  height: 48px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  background: var(--gradient-elevated);
+  border-top: 1px solid var(--color-accent-20);
 }
 
 .swipe-footer-instructions {
-  color: rgba(255,255,255,0.3);
+  color: var(--color-text-secondary);
   font-size: 0.8rem;
+  font-style: italic;
 }
 
 .swipe-footer-count {
-  color: rgba(255,255,255,0.4);
+  color: var(--color-accent);
   font-size: 0.8rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
 }
 
-/* Mobile */
+/* ── Mobile ─────────────────────────────── */
 @media (max-width: 600px) {
   .swipe-hint { display: none; }
   .swipe-arena { padding: 8px; }
