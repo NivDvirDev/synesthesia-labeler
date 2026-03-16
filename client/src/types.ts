@@ -58,6 +58,7 @@ export interface ClipSummary {
   has_auto_label: boolean;
   rater_count: number;
   is_hot?: boolean;
+  video_url?: string;
   creator_name?: string | null;
   creator_url?: string | null;
   claimed?: boolean;
