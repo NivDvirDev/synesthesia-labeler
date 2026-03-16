@@ -101,6 +101,7 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
+  white-space: nowrap;
   background: var(--gradient-brand);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
