@@ -3,7 +3,8 @@
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: var(--color-bg-primary);
+  /* Match body's radial gradient so the blue-deep bottom-right shows */
+  background: radial-gradient(ellipse at bottom right, #2D4263 0%, var(--color-bg-primary) 80%);
   overflow: hidden;
   font-family: var(--font-body);
 }
@@ -13,23 +14,11 @@
 .swipe-mode--done {
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 20px;
   color: var(--color-text-primary);
   text-align: center;
   padding: 32px;
 }
-
-.swipe-loading-spinner {
-  font-size: 3rem;
-  animation: spin 1.5s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.swipe-done-icon { font-size: 3rem; }
 
 .swipe-mode--done h2 {
   font-family: var(--font-display);
@@ -39,7 +28,8 @@
   margin: 0;
 }
 
-.swipe-mode--done p {
+.swipe-mode--done p,
+.swipe-mode--loading p {
   color: var(--color-text-secondary);
   font-size: 1rem;
   margin: 0;
@@ -56,6 +46,7 @@
   cursor: pointer;
   margin-top: 8px;
   font-family: var(--font-body);
+  box-shadow: 0 0 14px var(--color-accent-solid-25);
 }
 
 .swipe-done-secondary {
@@ -71,13 +62,15 @@
 
 /* ── Header ─────────────────────────────── */
 .swipe-header {
-  height: 56px;
+  height: 60px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  background: var(--gradient-elevated);
+  background: var(--color-glass-bg-strong);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--color-accent-20);
   box-shadow: 0 1px 12px var(--color-glow);
 }
@@ -85,10 +78,24 @@
 .swipe-header-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.swipe-header-flame { font-size: 1.2rem; }
+.swipe-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.swipe-header-brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+}
 
 .swipe-header-title {
   font-family: var(--font-display);
@@ -175,7 +182,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  background: var(--gradient-elevated);
+  background: var(--color-glass-bg-strong);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--color-accent-20);
 }
 
@@ -196,4 +205,5 @@
 @media (max-width: 600px) {
   .swipe-hint { display: none; }
   .swipe-arena { padding: 8px; }
+  .swipe-header-brand-name { display: none; }
 }

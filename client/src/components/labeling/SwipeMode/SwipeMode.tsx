@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SwipeCard from '../SwipeCard/SwipeCard';
 import SwipeGuestPrompt from '../SwipeGuestPrompt/SwipeGuestPrompt';
+import { WellspringLogo } from '../../brand/WellspringLogo/WellspringLogo';
 import { saveSwipeLabel } from '../../../api';
 import './SwipeMode.css';
 
@@ -101,7 +102,7 @@ const SwipeMode: React.FC = () => {
   if (loading) {
     return (
       <div className="swipe-mode swipe-mode--loading">
-        <div className="swipe-loading-spinner">🌀</div>
+        <WellspringLogo size={88} animate />
         <p>Loading clips…</p>
       </div>
     );
@@ -110,7 +111,7 @@ const SwipeMode: React.FC = () => {
   if (!currentClip || currentIndex >= clips.length) {
     return (
       <div className="swipe-mode swipe-mode--done">
-        <div className="swipe-done-icon">🎉</div>
+        <WellspringLogo size={80} animate />
         <h2>All caught up!</h2>
         <p>You've swiped through {swipedCount} clips{user ? ' — scores saved to your profile.' : '.'}</p>
         {!user && (
@@ -129,8 +130,11 @@ const SwipeMode: React.FC = () => {
     <div className="swipe-mode">
       <header className="swipe-header">
         <div className="swipe-header-brand">
-          <span className="swipe-header-flame">🔥</span>
-          <span className="swipe-header-title">Quick Rate</span>
+          <WellspringLogo size={34} animate />
+          <div className="swipe-header-titles">
+            <span className="swipe-header-brand-name">The Wellspring</span>
+            <span className="swipe-header-title">Quick Rate</span>
+          </div>
         </div>
         <div className="swipe-header-actions">
           {user ? (
