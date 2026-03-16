@@ -28,6 +28,7 @@ const SwipeMode: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [swipedCount, setSwipedCount] = useState(0);
+  const [muted, setMuted] = useState(false);
 
   // Check auth and load clips on mount
   useEffect(() => {
@@ -152,6 +153,8 @@ const SwipeMode: React.FC = () => {
           clip={{ id: currentClip.id, videoUrl: getVideoUrl(currentClip) }}
           onCommit={handleCommit}
           disabled={saving}
+          muted={muted}
+          onMuteToggle={() => setMuted(m => !m)}
         />
         <div className="swipe-hint swipe-hint--right">👍</div>
       </div>

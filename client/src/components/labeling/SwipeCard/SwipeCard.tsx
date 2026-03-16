@@ -12,6 +12,8 @@ interface Props {
   clip: ClipInfo;
   onCommit: (score: number) => void;
   disabled: boolean;
+  muted: boolean;
+  onMuteToggle: () => void;
 }
 
 export function dragToScore(deltaX: number, cardWidth: number): number {
@@ -24,7 +26,7 @@ export function dragToScore(deltaX: number, cardWidth: number): number {
   return 5;
 }
 
-const SwipeCard: React.FC<Props> = ({ clip, onCommit, disabled }) => {
+const SwipeCard: React.FC<Props> = ({ clip, onCommit, disabled, muted, onMuteToggle }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const dragStartX = useRef(0);
   const currentDeltaX = useRef(0);
@@ -33,7 +35,6 @@ const SwipeCard: React.FC<Props> = ({ clip, onCommit, disabled }) => {
   const [dragScore, setDragScore] = useState<number | null>(null);
   const [dragRatio, setDragRatio] = useState(0);
   const [phase, setPhase] = useState<'idle' | 'dragging' | 'committing' | 'snapping'>('idle');
-  const [muted, setMuted] = useState(true);
 
   const snapBack = useCallback(() => {
     const card = cardRef.current;
@@ -125,7 +126,7 @@ const SwipeCard: React.FC<Props> = ({ clip, onCommit, disabled }) => {
       />
       <button
         className="swipe-card-sound-btn"
-        onClick={(e) => { e.stopPropagation(); setMuted(m => !m); }}
+        onClick={(e) => { e.stopPropagation(); onMuteToggle(); }}
         title={muted ? 'Unmute' : 'Mute'}
       >
         {muted ? '🔇' : '🔊'}
