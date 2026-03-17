@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import WellspringHero from '../../brand/WellspringHero/WellspringHero';
+import WellspringLogo from '../../brand/WellspringLogo/WellspringLogo';
 import { getStats, getClipRankings, getLeaderboard } from '../../../api';
 import { Stats, ClipRanking, LeaderboardEntry } from '../../../types';
+import { Button, Card, CardContent, Badge } from '../../atoms';
 import './LandingPage.css';
 
 const LandingPage: React.FC = () => {
@@ -22,24 +23,24 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="landing-page">
-      <WellspringHero />
+      <WellspringLogo />
 
       {/* How it works */}
       <section className="landing-section">
         <h2 className="landing-section-title">How It Works</h2>
         <div className="landing-steps">
           <div className="landing-step">
-            <span className="landing-step-num">1</span>
+            <Badge variant="accent">1</Badge>
             <h3>Watch</h3>
             <p>Watch short audio visualization clips — sound transformed into visual art</p>
           </div>
           <div className="landing-step">
-            <span className="landing-step-num">2</span>
+            <Badge variant="accent">2</Badge>
             <h3>Rate</h3>
             <p>Score each clip on sync quality, aesthetics, harmony, and motion smoothness</p>
           </div>
           <div className="landing-step">
-            <span className="landing-step-num">3</span>
+            <Badge variant="accent">3</Badge>
             <h3>Compare</h3>
             <p>See how your ratings stack up against AI predictions and other raters</p>
           </div>
@@ -51,22 +52,30 @@ const LandingPage: React.FC = () => {
         <section className="landing-section">
           <h2 className="landing-section-title">The Dataset So Far</h2>
           <div className="landing-stats">
-            <div className="landing-stat-card">
-              <span className="landing-stat-value">{stats.total_clips}</span>
-              <span className="landing-stat-label">Clips</span>
-            </div>
-            <div className="landing-stat-card">
-              <span className="landing-stat-value">{stats.labeled_auto}</span>
-              <span className="landing-stat-label">AI Ratings</span>
-            </div>
-            <div className="landing-stat-card">
-              <span className="landing-stat-value">{stats.labeled_human}</span>
-              <span className="landing-stat-label">Human Ratings</span>
-            </div>
-            <div className="landing-stat-card accent">
-              <span className="landing-stat-value">{stats.unlabeled}</span>
-              <span className="landing-stat-label">Waiting for You</span>
-            </div>
+            <Card variant="glass" padding="md" className="landing-stat-card-wrap">
+              <CardContent>
+                <span className="landing-stat-value">{stats.total_clips}</span>
+                <span className="landing-stat-label">Clips</span>
+              </CardContent>
+            </Card>
+            <Card variant="glass" padding="md" className="landing-stat-card-wrap">
+              <CardContent>
+                <span className="landing-stat-value">{stats.labeled_auto}</span>
+                <span className="landing-stat-label">AI Ratings</span>
+              </CardContent>
+            </Card>
+            <Card variant="glass" padding="md" className="landing-stat-card-wrap">
+              <CardContent>
+                <span className="landing-stat-value">{stats.labeled_human}</span>
+                <span className="landing-stat-label">Human Ratings</span>
+              </CardContent>
+            </Card>
+            <Card variant="glass" padding="md" className="landing-stat-card-wrap accent">
+              <CardContent>
+                <span className="landing-stat-value">{stats.unlabeled}</span>
+                <span className="landing-stat-label">Waiting for You</span>
+              </CardContent>
+            </Card>
           </div>
         </section>
       )}
@@ -100,7 +109,7 @@ const LandingPage: React.FC = () => {
             ))}
           </div>
           <div className="landing-section-cta">
-            <Link to="/rankings" className="btn btn-outline">View All Rankings</Link>
+            <Link to="/rankings"><Button variant="secondary">View All Rankings</Button></Link>
           </div>
         </section>
       )}
@@ -116,13 +125,13 @@ const LandingPage: React.FC = () => {
                   {i === 0 ? '🏆' : i === 1 ? '🥈' : '🥉'}
                 </span>
                 <span className="landing-rater-name">{entry.username}</span>
-                <span className="landing-rater-level">Lv.{entry.level}</span>
+                <Badge variant="neutral">Lv.{entry.level}</Badge>
                 <span className="landing-rater-labels">{entry.total_labels} ratings</span>
               </div>
             ))}
           </div>
           <div className="landing-section-cta">
-            <Link to="/app" className="btn btn-join">Join the Leaderboard</Link>
+            <Link to="/app"><Button variant="primary">Join the Leaderboard</Button></Link>
           </div>
         </section>
       )}

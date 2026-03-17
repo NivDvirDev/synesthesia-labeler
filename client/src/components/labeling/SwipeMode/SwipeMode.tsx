@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SwipeCard from '../SwipeCard/SwipeCard';
 import SwipeGuestPrompt from '../SwipeGuestPrompt/SwipeGuestPrompt';
-import { WellspringLogo } from '../../brand/WellspringLogo/WellspringLogo';
+import { WellspringIcon } from '../../brand/WellspringLogo/WellspringIcon/WellspringIcon';
+import { Button } from '../../atoms';
 import { saveSwipeLabel } from '../../../api';
 import './SwipeMode.css';
 
@@ -102,7 +103,7 @@ const SwipeMode: React.FC = () => {
   if (loading) {
     return (
       <div className="swipe-mode swipe-mode--loading">
-        <WellspringLogo size={88} animate />
+        <WellspringIcon size={88} animate />
         <p>Loading clips…</p>
       </div>
     );
@@ -111,17 +112,17 @@ const SwipeMode: React.FC = () => {
   if (!currentClip || currentIndex >= clips.length) {
     return (
       <div className="swipe-mode swipe-mode--done">
-        <WellspringLogo size={80} animate />
+        <WellspringIcon size={80} animate />
         <h2>All caught up!</h2>
         <p>You've swiped through {swipedCount} clips{user ? ' — scores saved to your profile.' : '.'}</p>
         {!user && (
-          <button className="swipe-done-cta" onClick={() => navigate('/app')}>
+          <Button variant="primary" size="md" onClick={() => navigate('/app')}>
             Sign up to see your rank
-          </button>
+          </Button>
         )}
-        <button className="swipe-done-secondary" onClick={() => setCurrentIndex(0)}>
+        <Button variant="secondary" size="sm" onClick={() => setCurrentIndex(0)}>
           Start over
-        </button>
+        </Button>
       </div>
     );
   }
@@ -130,7 +131,7 @@ const SwipeMode: React.FC = () => {
     <div className="swipe-mode">
       <header className="swipe-header">
         <div className="swipe-header-brand">
-          <WellspringLogo size={34} animate />
+          <WellspringIcon size={34} animate />
           <div className="swipe-header-titles">
             <span className="swipe-header-brand-name">The Wellspring</span>
             <span className="swipe-header-title">Quick Rate</span>
@@ -140,13 +141,13 @@ const SwipeMode: React.FC = () => {
           {user ? (
             <span className="swipe-header-user">@{user.username}</span>
           ) : (
-            <button className="swipe-header-signin" onClick={() => navigate('/app')}>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/app')}>
               Sign in to save
-            </button>
+            </Button>
           )}
-          <button className="swipe-header-detail" onClick={() => navigate('/app')}>
+          <Button variant="secondary" size="sm" onClick={() => navigate('/app')}>
             Detail Mode →
-          </button>
+          </Button>
         </div>
       </header>
 

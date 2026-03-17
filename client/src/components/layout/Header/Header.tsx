@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FlameIcon } from '../../brand/FlameIcon/FlameIcon';
 import StatsPanel from '../../community/StatsPanel/StatsPanel';
+import { Button } from '../../atoms';
 import { Stats, User } from '../../../types';
 import './Header.css';
 
@@ -28,20 +29,22 @@ const Header: React.FC<HeaderProps> = ({
       <FlameIcon size={40} className="app-logo" />
       {stats && <StatsPanel stats={stats} />}
       <div className="user-info">
-        <button
-          className="btn-quick-mode"
+        <Button
+          variant="primary"
+          size="sm"
           onClick={() => navigate('/swipe')}
           title="Quick Rate Mode"
         >
           ⚡ Quick Mode
-        </button>
-        <button
-          className="btn-rankings-link"
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={onNavigateRankings}
           title="Public Rankings"
         >
           Rankings
-        </button>
+        </Button>
         <button
           className={`btn-trophy${showLeaderboard ? ' active' : ''}`}
           onClick={onToggleLeaderboard}
@@ -50,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({
           &#127942;
         </button>
         <span className="user-name">{user.username}</span>
-        <button className="btn-logout" onClick={onLogout}>Logout</button>
+        <Button variant="danger" size="sm" onClick={onLogout}>Logout</Button>
       </div>
     </header>
   );

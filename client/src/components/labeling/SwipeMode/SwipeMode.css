@@ -35,31 +35,6 @@
   margin: 0;
 }
 
-.swipe-done-cta {
-  padding: 12px 28px;
-  background: var(--gradient-accent);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 8px;
-  font-family: var(--font-body);
-  box-shadow: 0 0 14px var(--color-accent-solid-25);
-}
-
-.swipe-done-secondary {
-  background: none;
-  border: 1px solid var(--color-accent-20);
-  color: var(--color-text-secondary);
-  padding: 10px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-family: var(--font-body);
-}
-
 /* ── Header ─────────────────────────────── */
 .swipe-header {
   height: 60px;
@@ -118,41 +93,6 @@
   color: var(--color-accent-bright);
   font-size: 0.82rem;
   font-weight: 600;
-}
-
-.swipe-header-signin {
-  padding: 4px 12px;
-  font-size: 11px;
-  background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,149,0,0.15));
-  color: #ff9500;
-  border: 1px solid rgba(255,149,0,0.35);
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  font-family: var(--font-body);
-}
-
-.swipe-header-signin:hover {
-  background: linear-gradient(135deg, rgba(255,107,53,0.25), rgba(255,149,0,0.25));
-  border-color: rgba(255,149,0,0.6);
-}
-
-.swipe-header-detail {
-  padding: 4px 12px;
-  font-size: 11px;
-  background: var(--color-accent-solid-12);
-  color: var(--color-accent-soft);
-  border: 1px solid var(--color-accent-solid-25);
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  white-space: nowrap;
-  font-family: var(--font-body);
-}
-
-.swipe-header-detail:hover {
-  background: var(--color-accent-solid-25);
-  border-color: var(--color-accent-solid-50);
 }
 
 /* ── Arena (stays dark — video is the focus) */

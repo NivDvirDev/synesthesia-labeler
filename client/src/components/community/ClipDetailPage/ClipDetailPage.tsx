@@ -7,6 +7,7 @@ import RatingsTable from '../../labeling/RatingsTable/RatingsTable';
 import ClaimCreatorPanel from '../../labeling/ClaimCreatorPanel/ClaimCreatorPanel';
 import CreatorControls from '../../labeling/CreatorControls/CreatorControls';
 import { FlameIcon } from '../../brand/FlameIcon/FlameIcon';
+import { Button, ScoreBar } from '../../atoms';
 import './ClipDetailPage.css';
 
 function clipDisplayName(filename: string): string {
@@ -67,9 +68,9 @@ const ClipDetailPage: React.FC = () => {
       <div className="clip-detail-page">
         <div className="clip-detail-error">
           <h2>{error || 'Clip not found'}</h2>
-          <button className="btn-join" onClick={() => navigate('/rankings')}>
+          <Button variant="primary" onClick={() => navigate('/rankings')}>
             Back to Rankings
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -154,18 +155,18 @@ const ClipDetailPage: React.FC = () => {
           )}
         </div>
         <div className="clip-detail-nav">
-          <button className="btn-join" onClick={() => navigate('/rankings')}>
+          <Button variant="secondary" onClick={() => navigate('/rankings')}>
             Rankings
-          </button>
+          </Button>
           {isLoggedIn && (
-            <button className="btn-join" onClick={() => navigate('/')}>
+            <Button variant="primary" onClick={() => navigate('/')}>
               Rate This Clip
-            </button>
+            </Button>
           )}
           {!isLoggedIn && (
-            <button className="btn-join" onClick={() => navigate('/')}>
+            <Button variant="primary" onClick={() => navigate('/')}>
               Join &amp; Rate
-            </button>
+            </Button>
           )}
         </div>
       </header>
@@ -197,15 +198,10 @@ const ClipDetailPage: React.FC = () => {
                 return (
                   <div key={d} className="clip-detail-dim-row">
                     <span className="clip-detail-dim-name">{label}</span>
-                    <div className="score-bar-container">
-                      <div
-                        className="score-bar-fill"
-                        style={{ width: avgs[d] != null ? `${(avgs[d]! / 5) * 100}%` : '0%' }}
-                      />
-                      <span className="score-bar-label">
-                        {avgs[d] != null ? avgs[d]!.toFixed(1) : '\u2014'}
-                      </span>
-                    </div>
+                    {avgs[d] != null
+                      ? <ScoreBar value={avgs[d]!} max={5} size="sm" />
+                      : <span className="rank-na">&mdash;</span>
+                    }
                   </div>
                 );
               })}
