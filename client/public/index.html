@@ -27,7 +27,7 @@
   <script>
     (function() {
       var gaId = '%REACT_APP_GA_ID%';
-      if (!gaId || gaId === '%REACT_APP_GA_ID%' || gaId === '') return;
+      if (!gaId || gaId.indexOf('G-') !== 0) return; // skip if unset or not a valid GA4 ID
       var s = document.createElement('script');
       s.async = true;
       s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
