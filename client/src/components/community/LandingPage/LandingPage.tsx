@@ -142,6 +142,11 @@ const LandingPage: React.FC = () => {
           Part of the <strong>Synesthesia</strong> research project — building an open dataset
           for AI-powered audio visualization evaluation.
         </p>
+        <nav className="landing-footer-legal">
+          <Link to="/privacy" className="landing-footer-legal-link">Privacy Policy</Link>
+          <span className="landing-footer-legal-sep">·</span>
+          <Link to="/terms" className="landing-footer-legal-link">Terms of Service</Link>
+        </nav>
       </footer>
     </div>
   );

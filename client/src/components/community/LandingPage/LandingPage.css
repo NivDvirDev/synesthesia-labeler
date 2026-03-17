@@ -208,7 +208,31 @@
 .landing-footer p {
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin: 0;
+  margin: 0 0 12px;
+}
+
+.landing-footer-legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.landing-footer-legal-link {
+  font-size: 0.75rem;
+  color: rgba(224, 221, 213, 0.5);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.landing-footer-legal-link:hover {
+  color: var(--color-accent);
+}
+
+.landing-footer-legal-sep {
+  font-size: 0.75rem;
+  color: rgba(224, 221, 213, 0.3);
 }
 
 /* Responsive */
