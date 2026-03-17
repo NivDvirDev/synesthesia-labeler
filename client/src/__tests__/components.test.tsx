@@ -65,7 +65,7 @@ import Header from '../components/layout/Header/Header';
 
 describe('Footer', () => {
   test('renders branding text', () => {
-    render(<Footer />);
+    render(<MemoryRouter><Footer /></MemoryRouter>);
     expect(screen.getByText(/The Wellspring/i)).toBeInTheDocument();
   });
 });
