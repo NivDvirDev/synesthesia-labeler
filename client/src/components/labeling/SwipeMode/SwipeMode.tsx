@@ -7,6 +7,12 @@ import { Button } from '../../atoms';
 import { saveSwipeLabel } from '../../../api';
 import './SwipeMode.css';
 
+const trackEvent = (name: string, params?: Record<string, unknown>) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', name, params);
+  }
+};
+
 interface ClipItem {
   id: string;
   filename: string;
@@ -52,14 +58,17 @@ const SwipeMode: React.FC = () => {
         const shuffled = [...data].sort(() => Math.random() - 0.5);
         setClips(shuffled);
         setLoading(false);
+        trackEvent('clip_loaded', { clip_count: shuffled.length });
       })
       .catch(() => {
         // Fall back to all clips
         fetch(`${apiBase}/clips`, token ? { headers: { Authorization: `Bearer ${token}` } } : {})
           .then(r => r.json())
           .then((data: ClipItem[]) => {
-            setClips([...data].sort(() => Math.random() - 0.5));
+            const fallbackShuffled = [...data].sort(() => Math.random() - 0.5);
+            setClips(fallbackShuffled);
             setLoading(false);
+            trackEvent('clip_loaded', { clip_count: fallbackShuffled.length });
           })
           .catch(() => setLoading(false));
       });
@@ -69,9 +78,18 @@ const SwipeMode: React.FC = () => {
     const clip = clips[currentIndex];
     if (!clip) return;
 
+    trackEvent('swipe_attempt', {
+      score,
+      clip_id: clip.id,
+      is_guest: !user,
+      swipe_number: swipedCount + 1,
+    });
+
     // Guest mode: only allow 3 free swipes
     if (!user) {
       if (guestSwipeCount >= 3) {
+        trackEvent('guest_limit_reached');
+        trackEvent('signup_modal_shown');
         setShowGuestPrompt(true);
         return;
       }
@@ -90,7 +108,7 @@ const SwipeMode: React.FC = () => {
 
     setSwipedCount(c => c + 1);
     setCurrentIndex(i => i + 1);
-  }, [clips, currentIndex, user, guestSwipeCount]);
+  }, [clips, currentIndex, user, guestSwipeCount, swipedCount]);
 
   const currentClip = clips[currentIndex];
 

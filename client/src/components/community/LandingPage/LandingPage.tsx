@@ -6,6 +6,12 @@ import { Stats, ClipRanking, LeaderboardEntry } from '../../../types';
 import { Button, Card, CardContent, Badge } from '../../atoms';
 import './LandingPage.css';
 
+const trackEvent = (name: string, params?: Record<string, unknown>) => {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', name, params);
+  }
+};
+
 const LandingPage: React.FC = () => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [topClips, setTopClips] = useState<ClipRanking[]>([]);
@@ -109,7 +115,7 @@ const LandingPage: React.FC = () => {
             ))}
           </div>
           <div className="landing-section-cta">
-            <Link to="/rankings"><Button variant="secondary">View All Rankings</Button></Link>
+            <Link to="/rankings" onClick={() => trackEvent('landing_cta_clicked', { cta: 'view_rankings' })}><Button variant="secondary">View All Rankings</Button></Link>
           </div>
         </section>
       )}
@@ -131,7 +137,7 @@ const LandingPage: React.FC = () => {
             ))}
           </div>
           <div className="landing-section-cta">
-            <Link to="/app"><Button variant="primary">Join the Leaderboard</Button></Link>
+            <Link to="/app" onClick={() => trackEvent('landing_cta_clicked', { cta: 'join_leaderboard' })}><Button variant="primary">Join the Leaderboard</Button></Link>
           </div>
         </section>
       )}
