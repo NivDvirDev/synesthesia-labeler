@@ -10,6 +10,20 @@ Detailed rules also in `/Project/.claude/rules/web-labeler.md`.
 
 ---
 
+## DEPLOYMENT — MUST READ
+
+This directory is a **nested git repo** (`NivDvirDev/synesthesia-labeler`), separate from the parent monorepo (`NivDvirDev/visualization`). **Render deploys from THIS repo only.**
+
+```bash
+# To deploy: commit and push FROM THIS DIRECTORY
+cd synesthesia_eval/web-labeler
+git add <files> && git commit -m "msg" && git push origin main
+
+# Pushing from the parent monorepo does NOT deploy to Render!
+```
+
+---
+
 ## ⚛️ Atoms Library — UI First Principle
 
 > **MANDATORY RULE:** When building any new UI feature, **look in the Atoms library FIRST**.
