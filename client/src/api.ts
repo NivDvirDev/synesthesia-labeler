@@ -85,23 +85,28 @@ export const saveLabel = (clipId: string, data: LabelData): Promise<unknown> =>
     return json;
   });
 
-export const saveSwipeLabel = async (clipId: string, score: number, token: string | null): Promise<unknown> => {
-  try {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    const r = await fetch(`${API}/labels/${clipId}`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({ overall_impression: score, notes: '' }),
-    });
-    const json = await r.json();
-    if (!r.ok) throw new Error(json.error || 'Save failed');
-    return json;
-  } catch (err) {
-    // Silently swallow 401s for guest mode — callers handle auth state
-    if (err instanceof Error && err.message.includes('401')) return null;
+export const saveSwipeLabel = async (
+  clipId: string,
+  score: number,
+  token: string | null,
+  categories?: { sync_quality: number; harmony: number; aesthetic_quality: number; motion_smoothness: number }
+): Promise<unknown> => {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const body: Record<string, unknown> = { overall_impression: score, notes: '' };
+  if (categories) Object.assign(body, categories);
+  const r = await fetch(`${API}/labels/${clipId}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) {
+    const json = await r.json().catch(() => ({ error: 'Unknown error' }));
+    const err = new Error(json.error || `Save failed (${r.status})`);
+    (err as any).status = r.status;
     throw err;
   }
+  return r.json();
 };
 
 export const deleteLabel = (clipId: string, labeler: string): Promise<unknown> =>
