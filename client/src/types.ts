@@ -139,6 +139,8 @@ export interface Stats {
   labeled_human: number;
   labeled_auto: number;
   unlabeled: number;
+  total_users: number;
+  recent_users_7d: number;
   avg_scores?: AvgScores | null;
 }
 
