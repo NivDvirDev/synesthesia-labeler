@@ -63,6 +63,28 @@ router.put('/:clip_id', authRequired, async (req, res, next) => {
   }
 });
 
+// POST /api/labels/anonymous — save anonymous guest rating (no auth required)
+router.post('/anonymous', async (req, res, next) => {
+  try {
+    const { clip_id, overall_score, sync_quality, harmony, aesthetic_quality, motion_smoothness, session_id } = req.body;
+    if (!clip_id || overall_score == null) {
+      return res.status(400).json({ error: 'clip_id and overall_score are required' });
+    }
+    const labeler = `anon_${session_id || Date.now()}`;
+    const label = await Label.upsert(clip_id, {
+      labeler,
+      sync_quality: sync_quality ?? overall_score,
+      harmony: harmony ?? overall_score,
+      aesthetic_quality: aesthetic_quality ?? overall_score,
+      motion_smoothness: motion_smoothness ?? overall_score,
+      overall_impression: overall_score,
+    });
+    res.json({ success: true, labeler, clip_id });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // DELETE /api/labels/:clip_id/:labeler — users can only delete their own labels
 router.delete('/:clip_id/:labeler', authRequired, async (req, res, next) => {
   try {
